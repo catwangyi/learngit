@@ -103,6 +103,7 @@ public class SendPostActivity extends AppCompatActivity {
                     //如果没有权限
                     ActivityCompat.requestPermissions(SendPostActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1 );
                 }else{
+                    imagePath="hasimg";//有图片
                     openAlbum();
                 }
             }
@@ -116,8 +117,11 @@ public class SendPostActivity extends AppCompatActivity {
                     Toast.makeText(SendPostActivity.this,"标题或内容不能为空!" ,Toast.LENGTH_SHORT ).show();
                 }
                 else{//发布
-                    if(picture==null){//没有图片
-                        PostItem postItem=new PostItem();
+                    picture.setDrawingCacheEnabled(true);
+                    Bitmap obmp = Bitmap.createBitmap(picture.getDrawingCache());
+                    if(TextUtils.isEmpty(imagePath)&&TextUtils.isEmpty(imagePath_take)){//没有图片
+                        save(null);
+                        /*PostItem postItem=new PostItem();
                         postItem.setTitle(post_title.getText().toString().trim());
                         postItem.setContent(post_content.getText().toString().trim());
                         postItem.setPhoto(null);
@@ -131,7 +135,7 @@ public class SendPostActivity extends AppCompatActivity {
                                     Toast.makeText(SendPostActivity.this,"上传失败！"+e.getMessage() ,Toast.LENGTH_SHORT ).show();
                                 }
                             }
-                        });
+                        });*/
                     }else{//有图片
                         uploadImage(imagePath);
                     }

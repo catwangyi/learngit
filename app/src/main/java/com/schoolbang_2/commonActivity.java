@@ -50,6 +50,7 @@ public class commonActivity extends AppCompatActivity {
     private final int ERROR=0;
     private Button sendPost;
     private final int DOWNLOADFLAG=2;
+    private final int NOMESSAGE=3;
     private commonAdapter adapter;
     private FloatingActionButton refresh;
     private final String TAG="commonActivity";
@@ -59,6 +60,9 @@ public class commonActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             pd.dismiss();
             switch (msg.what){
+                case NOMESSAGE:
+                    Toast.makeText(commonActivity.this,"没有帖子了..." ,Toast.LENGTH_SHORT ).show();
+                    break;
                 case SUCCESS:
                     postItemList =(List<PostItem>) msg.obj;
                     //Toast.makeText(commonActivity.this,"更新数据成功",Toast.LENGTH_SHORT ).show();
@@ -89,11 +93,11 @@ public class commonActivity extends AppCompatActivity {
     @Override
     protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_common);
         pd=new ProgressDialog(commonActivity.this);
         pd.setMessage("正在加载中...");
         pd.show();
         Refresh();
-        setContentView(R.layout.activity_common);
         lv=findViewById(R.id.lv);
         //lv.setScrollbarFadingEnabled(false);//设置滚动条
         get_out=findViewById(R.id.get_out);
@@ -172,34 +176,31 @@ public class commonActivity extends AppCompatActivity {
                     // mbitmap.compress(Bitmap.CompressFormat.JPEG,30 , )
                     tv_post_title.setText(item.getTitle());
                     tv_post_content.setText(item.getContent());
-                    if (mbitmap==null){
-                        Log.i(TAG, "bitmap为空");
-                    }else{
-                        //Bitmap mbitmap2= ThumbnailUtils.extractThumbnail(mbitmap, 350,350 );
-                        Bitmap mbitmap2= BitmapUtils.getThumb(saveFile.getPath(),350,350);
-                        iv_post_photo.setImageBitmap(mbitmap2);
-                    }
+                    //Bitmap mbitmap2= ThumbnailUtils.extractThumbnail(mbitmap, 350,350 );
+                    Bitmap mbitmap2= BitmapUtils.getThumb(saveFile.getPath(),350,350);
+                    iv_post_photo.setImageBitmap(mbitmap2);
                     return view;
                 }else {//文件不存在
-                    item.getPhoto().download(saveFile, new DownloadFileListener() {
+                   /* item.getPhoto().download(saveFile, new DownloadFileListener() {
                         @Override
                         public void done(String s, BmobException e) {
                             //下载，再显示
-                            /*Bitmap mbitmap = BitmapFactory.decodeFile(saveFile.getPath());
+                            Bitmap mbitmap = BitmapFactory.decodeFile(saveFile.getPath());
                             iv_post_photo.setImageBitmap(mbitmap);
                             tv_post_title.setText(item.getTitle());
-                            tv_post_content.setText(item.getContent());*/
+                            tv_post_content.setText(item.getContent());
                         }
                         @Override
                         public void onProgress(Integer integer, long l) {
 
                         }
-                    });
+                    });*/
                     return view;
                 }
             }else {//没有图片的情况下
                 tv_post_title.setText(item.getTitle());
                 tv_post_content.setText(item.getContent());
+                iv_post_photo.setImageBitmap(null);
                 return view;
             }
         }
@@ -231,36 +232,47 @@ public class commonActivity extends AppCompatActivity {
                     @Override
                     public void done(final List<PostItem> list, BmobException e) {
                         if (e==null){//查询成功
-                            for (final PostItem p:list) {
-                                if (p.getPhoto()!=null){
-                                    File saveFile = new File(getExternalCacheDir(),p.getPhoto().getFilename());
-                                    if (saveFile.exists()){
-                                        //文件存在，不处理
-                                        Message msg=Message.obtain();
-                                        msg.obj=list;
-                                        msg.what=SUCCESS;
-                                        mHandler.sendMessage(msg);
-                                    }else {
-                                        //文件不存在
-                                        p.getPhoto().download(saveFile, new DownloadFileListener() {
-                                            @Override
-                                            public void done(String s, BmobException e) {
-                                                Log.i(TAG,"下载成功"+p.getPhoto().getFilename());
-                                                if (list.get(list.size()-1)==p){
+                            if (list.size()!=0){//云端有数据
+                                for (int i=0;i<list.size();i++) {
+                                    if (list.get(i).getPhoto()!=null){//有图
+                                        File saveFile = new File(getExternalCacheDir(),list.get(i).getPhoto().getFilename());
+                                        if (saveFile.exists()){
+                                            //文件存在，不处理
+                                            Log.i(TAG,"文件存在"+saveFile.getPath());
+                                            Message msg=Message.obtain();
+                                            msg.obj=list;
+                                            msg.what=SUCCESS;
+                                            mHandler.sendMessage(msg);
+                                        }else {
+                                            //文件不存在
+                                            Log.i(TAG,"开始下载"+saveFile.getPath());
+                                            list.get(i).getPhoto().download(saveFile, new DownloadFileListener() {
+                                                @Override
+                                                public void done(String s, BmobException e) {
+                                                    Log.i(TAG,"下载成功"+s);
                                                     Message msg=Message.obtain();
                                                     msg.obj=list;
                                                     msg.what=SUCCESS;
                                                     mHandler.sendMessage(msg);
                                                 }
-                                            }
-                                            @Override
-                                            public void onProgress(Integer integer, long l) {
-                                            }
-                                        });
+                                                @Override
+                                                public void onProgress(Integer integer, long l) {
+                                                }
+                                            });
+                                        }
+                                    }else{//无图
+                                        Message msg=Message.obtain();
+                                        msg.obj=list;
+                                        msg.what=SUCCESS;
+                                        mHandler.sendMessage(msg);
                                     }
                                 }
+                            }else{//云端没有数据
+                                Message msg=Message.obtain();
+                                msg.obj=null;
+                                msg.what=NOMESSAGE;
+                                mHandler.sendMessage(msg);
                             }
-                            //Toast.makeText(commonActivity.this,"刷新成功" ,Toast.LENGTH_SHORT ).show();
                         }
                         else
                         {//查询失败
