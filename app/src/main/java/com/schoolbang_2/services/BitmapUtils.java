@@ -15,16 +15,14 @@ import java.io.IOException;
  * @updateDes ${TODO}
  */
 public class BitmapUtils {
-    public static Bitmap getThumb(String path){
+    public static Bitmap getThumb(String path,int reqWidth,int reqHeight){
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(path, options);
-        int reqWidth, reqHeight, width=options.outWidth, height=options.outHeight;
+        int width=options.outWidth, height=options.outHeight;
         if (width > height){
-            reqWidth = 198;
             reqHeight = (reqWidth * height)/width;
         }else{
-            reqHeight = 198;
             reqWidth = (width * reqHeight)/height;
         }
         int inSampleSize = 1;

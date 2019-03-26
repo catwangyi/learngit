@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -25,6 +24,7 @@ import android.widget.Toast;
 
 import com.schoolbang_2.db.dao.userDao;
 import com.schoolbang_2.domain.PostItem;
+import com.schoolbang_2.services.BitmapUtils;
 
 import java.io.File;
 import java.util.List;
@@ -89,10 +89,13 @@ public class commonActivity extends AppCompatActivity {
     @Override
     protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        pd=new ProgressDialog(commonActivity.this);
+        pd.setMessage("正在加载中...");
+        pd.show();
+        Refresh();
         setContentView(R.layout.activity_common);
         lv=findViewById(R.id.lv);
         //lv.setScrollbarFadingEnabled(false);//设置滚动条
-        Refresh();
         get_out=findViewById(R.id.get_out);
         refresh=findViewById(R.id.refresh);
         sendPost=findViewById(R.id.goto_sendpost);
@@ -103,9 +106,6 @@ public class commonActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        pd=new ProgressDialog(commonActivity.this);
-        pd.setMessage("正在加载中...");
-        pd.show();
         refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -151,7 +151,14 @@ public class commonActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            View view=View.inflate(commonActivity.this,R.layout.postitem ,null );
+            View view;
+            if (convertView==null) {
+                //打气筒
+                view = View.inflate(commonActivity.this,R.layout.postitem ,null );
+            }
+            else {
+                view=convertView;
+            }
             final TextView tv_post_title=view.findViewById(R.id.tv_post_title);
             final TextView tv_post_content=view.findViewById(R.id.tv_post_content);
             final PostItem item=postItemList.get(postItemList.size()-position-1);
@@ -168,8 +175,8 @@ public class commonActivity extends AppCompatActivity {
                     if (mbitmap==null){
                         Log.i(TAG, "bitmap为空");
                     }else{
-                        Bitmap mbitmap2= ThumbnailUtils.extractThumbnail(mbitmap, 350,350 );
-                        //Bitmap mbitmap2= BitmapUtils.getThumb(saveFile.getPath());
+                        //Bitmap mbitmap2= ThumbnailUtils.extractThumbnail(mbitmap, 350,350 );
+                        Bitmap mbitmap2= BitmapUtils.getThumb(saveFile.getPath(),350,350);
                         iv_post_photo.setImageBitmap(mbitmap2);
                     }
                     return view;
@@ -222,16 +229,29 @@ public class commonActivity extends AppCompatActivity {
                 final BmobQuery<PostItem> bmobQuery=new BmobQuery<>();
                 bmobQuery.findObjects(new FindListener<PostItem>() {
                     @Override
-                    public void done(List<PostItem> list, BmobException e) {
+                    public void done(final List<PostItem> list, BmobException e) {
                         if (e==null){//查询成功
-                            /*for (final PostItem p:list) {
+                            for (final PostItem p:list) {
                                 if (p.getPhoto()!=null){
                                     File saveFile = new File(getExternalCacheDir(),p.getPhoto().getFilename());
-                                    if (!saveFile.exists()){
+                                    if (saveFile.exists()){
+                                        //文件存在，不处理
+                                        Message msg=Message.obtain();
+                                        msg.obj=list;
+                                        msg.what=SUCCESS;
+                                        mHandler.sendMessage(msg);
+                                    }else {
+                                        //文件不存在
                                         p.getPhoto().download(saveFile, new DownloadFileListener() {
                                             @Override
                                             public void done(String s, BmobException e) {
                                                 Log.i(TAG,"下载成功"+p.getPhoto().getFilename());
+                                                if (list.get(list.size()-1)==p){
+                                                    Message msg=Message.obtain();
+                                                    msg.obj=list;
+                                                    msg.what=SUCCESS;
+                                                    mHandler.sendMessage(msg);
+                                                }
                                             }
                                             @Override
                                             public void onProgress(Integer integer, long l) {
@@ -239,11 +259,7 @@ public class commonActivity extends AppCompatActivity {
                                         });
                                     }
                                 }
-                            }*/
-                            Message msg=Message.obtain();
-                            msg.obj=list;
-                            msg.what=SUCCESS;
-                            mHandler.sendMessage(msg);
+                            }
                             //Toast.makeText(commonActivity.this,"刷新成功" ,Toast.LENGTH_SHORT ).show();
                         }
                         else

@@ -99,10 +99,9 @@ public class SendPostActivity extends AppCompatActivity {
         chooseFromAlbum.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ContextCompat.checkSelfPermission(SendPostActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){//如果没有权限
-                    ActivityCompat.requestPermissions(SendPostActivity.this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1 );
+                if (ContextCompat.checkSelfPermission(SendPostActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                    //如果没有权限
+                    ActivityCompat.requestPermissions(SendPostActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1 );
                 }else{
                     openAlbum();
                 }
@@ -117,7 +116,7 @@ public class SendPostActivity extends AppCompatActivity {
                     Toast.makeText(SendPostActivity.this,"标题或内容不能为空!" ,Toast.LENGTH_SHORT ).show();
                 }
                 else{//发布
-                    if(TextUtils.isEmpty(imagePath_take)){//没有图片
+                    if(picture==null){//没有图片
                         PostItem postItem=new PostItem();
                         postItem.setTitle(post_title.getText().toString().trim());
                         postItem.setContent(post_content.getText().toString().trim());
