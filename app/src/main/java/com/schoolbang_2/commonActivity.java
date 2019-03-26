@@ -89,7 +89,7 @@ public class commonActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Refresh();
+        //Refresh();
     }
 
     @Override
