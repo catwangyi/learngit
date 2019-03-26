@@ -2,6 +2,7 @@ package com.schoolbang_2;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,6 +19,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -35,6 +37,8 @@ import cn.bmob.v3.datatype.BmobFile;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.SaveListener;
 import cn.bmob.v3.listener.UploadFileListener;
+import top.zibin.luban.Luban;
+import top.zibin.luban.OnCompressListener;
 
 /**
  * @version $Rev$
@@ -49,14 +53,18 @@ public class SendPostActivity extends AppCompatActivity {
     public static final int TAKE_PHOTO=1;
     public static final int SUCCESS=3;
     public static final int CHOOSE_PHOTO=2;
+    private static final String TAG="SendPostActivity";
     private ImageView picture;
     private Uri imageUri;
     private User author;
     private String imagePath;
     private String imagePath_take;
+    private ProgressDialog mProgressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mProgressDialog=new ProgressDialog(SendPostActivity.this);
+        mProgressDialog.setMessage("正在上传，请稍后...");
         setContentView(R.layout.sendpost);
         post_title=findViewById(R.id.send_post_title);
         picture=findViewById(R.id.iv_picture);
@@ -117,6 +125,7 @@ public class SendPostActivity extends AppCompatActivity {
                     Toast.makeText(SendPostActivity.this,"标题或内容不能为空!" ,Toast.LENGTH_SHORT ).show();
                 }
                 else{//发布
+                    mProgressDialog.show();
                     picture.setDrawingCacheEnabled(true);
                     Bitmap obmp = Bitmap.createBitmap(picture.getDrawingCache());
                     if(TextUtils.isEmpty(imagePath)&&TextUtils.isEmpty(imagePath_take)){//没有图片
@@ -215,19 +224,37 @@ public class SendPostActivity extends AppCompatActivity {
         displayImage(imagePath);
     }
     private void uploadImage(String imagePath) {
-        final BmobFile image=new BmobFile(new File(imagePath));
-        image.upload(new UploadFileListener() {//上传图片
+        File file=new File(imagePath);
+        Luban.with(this).load(file).ignoreBy(100).setCompressListener(new OnCompressListener() {
             @Override
-            public void done(BmobException e) {
-                if (e==null){
-                    save(image);
-                    Toast.makeText(SendPostActivity.this,"图片上传成功" ,Toast.LENGTH_SHORT ).show();
-                }else {
-                    Toast.makeText(SendPostActivity.this,"图片上传失败" ,Toast.LENGTH_SHORT ).show();
+            public void onStart() {
+                Log.i(TAG,"开始压缩" );
+            }
+
+            @Override
+            public void onSuccess(File file) {
+                Log.i(TAG,"压缩成功" );
+                final BmobFile image=new BmobFile(file);
+                image.upload(new UploadFileListener() {//上传图片
+                    @Override
+                    public void done(BmobException e) {
+                        if (e==null){
+                            save(image);
+                            Toast.makeText(SendPostActivity.this,"图片上传成功" ,Toast.LENGTH_SHORT ).show();
+                        }else {
+                            Toast.makeText(SendPostActivity.this,"图片上传失败" ,Toast.LENGTH_SHORT ).show();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                if (e!=null){
+                    Log.i(TAG,"压缩失败"+e.getMessage() );
                 }
             }
-        });
-
+        }).launch();
     }
     private void save(BmobFile image) {
         PostItem postItem=new PostItem();
@@ -239,6 +266,7 @@ public class SendPostActivity extends AppCompatActivity {
             public void done(String s, BmobException e) {
                 if (e==null){
                     Toast.makeText(SendPostActivity.this,"上传成功" ,Toast.LENGTH_SHORT ).show();
+                    mProgressDialog.dismiss();
                     finish();
                 }else{
                     Toast.makeText(SendPostActivity.this,"上传失败"+e.getMessage() ,Toast.LENGTH_SHORT ).show();
