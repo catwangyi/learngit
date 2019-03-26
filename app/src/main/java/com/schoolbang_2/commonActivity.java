@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -24,7 +25,6 @@ import android.widget.Toast;
 
 import com.schoolbang_2.db.dao.userDao;
 import com.schoolbang_2.domain.PostItem;
-import com.schoolbang_2.services.BitmapUtils;
 
 import java.io.File;
 import java.util.List;
@@ -49,7 +49,9 @@ public class commonActivity extends AppCompatActivity {
     private Button get_out;
     private final int ERROR=0;
     private Button sendPost;
-    private final int DOWNLOADFLAG=2;
+    private int FILEEXISTS=0;
+    private  int IMAGEEXISTS=0;//有图的帖子
+    private int NOIMAGE=0;//无图的帖子
     private final int NOMESSAGE=3;
     private commonAdapter adapter;
     private FloatingActionButton refresh;
@@ -94,10 +96,6 @@ public class commonActivity extends AppCompatActivity {
     protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_common);
-        pd=new ProgressDialog(commonActivity.this);
-        pd.setMessage("正在加载中...");
-        pd.show();
-        Refresh();
         lv=findViewById(R.id.lv);
         //lv.setScrollbarFadingEnabled(false);//设置滚动条
         get_out=findViewById(R.id.get_out);
@@ -176,25 +174,12 @@ public class commonActivity extends AppCompatActivity {
                     // mbitmap.compress(Bitmap.CompressFormat.JPEG,30 , )
                     tv_post_title.setText(item.getTitle());
                     tv_post_content.setText(item.getContent());
-                    //Bitmap mbitmap2= ThumbnailUtils.extractThumbnail(mbitmap, 350,350 );
-                    Bitmap mbitmap2= BitmapUtils.getThumb(saveFile.getPath(),350,350);
+                    Bitmap mbitmap2= ThumbnailUtils.extractThumbnail(mbitmap, 350,350 );
+                    //Bitmap mbitmap2= BitmapUtils.getThumb(saveFile.getPath(),350,350);
                     iv_post_photo.setImageBitmap(mbitmap2);
                     return view;
                 }else {//文件不存在
-                   /* item.getPhoto().download(saveFile, new DownloadFileListener() {
-                        @Override
-                        public void done(String s, BmobException e) {
-                            //下载，再显示
-                            Bitmap mbitmap = BitmapFactory.decodeFile(saveFile.getPath());
-                            iv_post_photo.setImageBitmap(mbitmap);
-                            tv_post_title.setText(item.getTitle());
-                            tv_post_content.setText(item.getContent());
-                        }
-                        @Override
-                        public void onProgress(Integer integer, long l) {
 
-                        }
-                    });*/
                     return view;
                 }
             }else {//没有图片的情况下
@@ -224,6 +209,11 @@ public class commonActivity extends AppCompatActivity {
         Toast.makeText(commonActivity.this,s ,Toast.LENGTH_LONG ).show();
     }
     private void Refresh(){
+        if (pd==null){
+            pd=new ProgressDialog(commonActivity.this);
+        }
+        pd.setMessage("正在加载中...");
+        pd.show();
         new Thread(){
             @Override
             public void run() {
@@ -233,27 +223,31 @@ public class commonActivity extends AppCompatActivity {
                     public void done(final List<PostItem> list, BmobException e) {
                         if (e==null){//查询成功
                             if (list.size()!=0){//云端有数据
+                                Log.i(TAG, "    list.size():"+list.size());
                                 for (int i=0;i<list.size();i++) {
                                     if (list.get(i).getPhoto()!=null){//有图
                                         File saveFile = new File(getExternalCacheDir(),list.get(i).getPhoto().getFilename());
                                         if (saveFile.exists()){
                                             //文件存在，不处理
                                             Log.i(TAG,"文件存在"+saveFile.getPath());
-                                            Message msg=Message.obtain();
-                                            msg.obj=list;
-                                            msg.what=SUCCESS;
-                                            mHandler.sendMessage(msg);
+                                            FILEEXISTS++;
+                                            Log.i(TAG,"FILEEXISTS:"+FILEEXISTS);
                                         }else {
                                             //文件不存在
-                                            Log.i(TAG,"开始下载"+saveFile.getPath());
+                                            Log.i(TAG,"开始下载"+saveFile.getPath()+"     I:"+i+"filename"+list.get(i).getTitle());
                                             list.get(i).getPhoto().download(saveFile, new DownloadFileListener() {
                                                 @Override
                                                 public void done(String s, BmobException e) {
                                                     Log.i(TAG,"下载成功"+s);
-                                                    Message msg=Message.obtain();
-                                                    msg.obj=list;
-                                                    msg.what=SUCCESS;
-                                                    mHandler.sendMessage(msg);
+                                                    IMAGEEXISTS++;
+                                                    Log.i(TAG,"IMAGEEXISTS:"+ IMAGEEXISTS);
+                                                    if (NOIMAGE+IMAGEEXISTS+FILEEXISTS==list.size()){
+                                                        Log.i(TAG,"ok");
+                                                        Message msg=Message.obtain();
+                                                        msg.obj=list;
+                                                        msg.what=SUCCESS;
+                                                        mHandler.sendMessage(msg);
+                                                    }
                                                 }
                                                 @Override
                                                 public void onProgress(Integer integer, long l) {
@@ -261,11 +255,21 @@ public class commonActivity extends AppCompatActivity {
                                             });
                                         }
                                     }else{//无图
-                                        Message msg=Message.obtain();
+                                        Log.i(TAG,"无图：：：："+"      I:"+i+"filename"+list.get(i).getTitle());
+                                        NOIMAGE++;
+                                        Log.i(TAG,"NOIMAGE:"+NOIMAGE);
+                                        /*Message msg=Message.obtain();
                                         msg.obj=list;
                                         msg.what=SUCCESS;
-                                        mHandler.sendMessage(msg);
+                                        mHandler.sendMessage(msg);*/
                                     }
+                                }
+                                if (NOIMAGE+IMAGEEXISTS+FILEEXISTS==list.size()){
+                                    Log.i(TAG,"ok");
+                                    Message msg=Message.obtain();
+                                    msg.obj=list;
+                                    msg.what=SUCCESS;
+                                    mHandler.sendMessage(msg);
                                 }
                             }else{//云端没有数据
                                 Message msg=Message.obtain();
