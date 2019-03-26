@@ -112,7 +112,7 @@ public class commonActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Refresh();
-                Toast.makeText(commonActivity.this, "刷新成功",Toast.LENGTH_SHORT ).show();
+                //Toast.makeText(commonActivity.this, "刷新成功",Toast.LENGTH_SHORT ).show();
             }
         });
         get_out.setOnClickListener(new View.OnClickListener() {
@@ -243,6 +243,9 @@ public class commonActivity extends AppCompatActivity {
                                                     Log.i(TAG,"IMAGEEXISTS:"+ IMAGEEXISTS);
                                                     if (NOIMAGE+IMAGEEXISTS+FILEEXISTS==list.size()){
                                                         Log.i(TAG,"ok");
+                                                        FILEEXISTS=0;
+                                                        IMAGEEXISTS=0;//有图的帖子
+                                                        NOIMAGE=0;//无图的帖子
                                                         Message msg=Message.obtain();
                                                         msg.obj=list;
                                                         msg.what=SUCCESS;
@@ -265,6 +268,9 @@ public class commonActivity extends AppCompatActivity {
                                     }
                                 }
                                 if (NOIMAGE+IMAGEEXISTS+FILEEXISTS==list.size()){
+                                    FILEEXISTS=0;
+                                    IMAGEEXISTS=0;//有图的帖子
+                                    NOIMAGE=0;//无图的帖子
                                     Log.i(TAG,"ok");
                                     Message msg=Message.obtain();
                                     msg.obj=list;
