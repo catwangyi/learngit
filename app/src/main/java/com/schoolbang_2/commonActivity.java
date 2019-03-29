@@ -101,6 +101,7 @@ public class commonActivity extends AppCompatActivity {
         get_out=findViewById(R.id.get_out);
         refresh=findViewById(R.id.refresh);
         sendPost=findViewById(R.id.goto_sendpost);
+        Refresh();
         sendPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
