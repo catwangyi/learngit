@@ -1,6 +1,7 @@
 package com.schoolbang_2;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
@@ -30,6 +31,10 @@ public class RegisteredActivity extends AppCompatActivity {
     protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registered);
+        ActionBar actionBar=getSupportActionBar();
+        if (actionBar!=null){
+            actionBar.hide();
+        }
         et_name=findViewById(R.id.et_name_reg);
         et_pwd=findViewById(R.id.et_pwd_reg);
         et_pwd_confirm=findViewById(R.id.et_pwd_confirm_reg);

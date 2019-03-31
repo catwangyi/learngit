@@ -16,6 +16,7 @@ public class PostItem extends BmobObject{
     //private User author;//帖子作者
     private BmobFile photo;
 
+
     public BmobFile getPhoto() {
         return photo;
     }

@@ -42,6 +42,9 @@
         <activity android:name=".loginActivity"
             android:label="校园帮">
         </activity>
+        <activity android:name=".PostActivity"
+                  android:label="详情">
+        </activity>
         <activity android:name=".RegisteredActivity"
                   android:label="注册">
         </activity>

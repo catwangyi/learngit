@@ -17,6 +17,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -66,6 +67,10 @@ public class SendPostActivity extends AppCompatActivity {
         mProgressDialog=new ProgressDialog(SendPostActivity.this);
         mProgressDialog.setMessage("正在上传，请稍后...");
         setContentView(R.layout.sendpost);
+        ActionBar actionBar=getSupportActionBar();
+        if (actionBar!=null){
+            actionBar.hide();
+        }
         post_title=findViewById(R.id.send_post_title);
         picture=findViewById(R.id.iv_picture);
         post_content=findViewById(R.id.send_post_content);

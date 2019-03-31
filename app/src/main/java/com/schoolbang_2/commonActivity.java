@@ -12,10 +12,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -96,6 +98,10 @@ public class commonActivity extends AppCompatActivity {
     protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_common);
+        ActionBar actionBar=getSupportActionBar();
+        if (actionBar!=null){
+            actionBar.hide();
+        }
         lv=findViewById(R.id.lv);
         //lv.setScrollbarFadingEnabled(false);//设置滚动条
         get_out=findViewById(R.id.get_out);
@@ -114,6 +120,18 @@ public class commonActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Refresh();
                 //Toast.makeText(commonActivity.this, "刷新成功",Toast.LENGTH_SHORT ).show();
+            }
+        });
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                PostItem postItem=postItemList.get(postItemList.size()-position-1);
+                Log.i(TAG,"position:"+position+"post:objId"+postItem.getObjectId());
+                //Toast.makeText(commonActivity.this, "点击标题"+postItem.getTitle(), Toast.LENGTH_SHORT).show();
+                Intent intent=new Intent(commonActivity.this, PostActivity.class);
+                intent.putExtra("postItem",postItem );
+                //启动活动
+                startActivity(intent);
             }
         });
         get_out.setOnClickListener(new View.OnClickListener() {
@@ -176,6 +194,7 @@ public class commonActivity extends AppCompatActivity {
                     tv_post_title.setText(item.getTitle());
                     tv_post_content.setText(item.getContent());
                     Bitmap mbitmap2= ThumbnailUtils.extractThumbnail(mbitmap, 350,350 );
+                    //item.setBitmap(mbitmap2);
                     //Bitmap mbitmap2= BitmapUtils.getThumb(saveFile.getPath(),350,350);
                     iv_post_photo.setImageBitmap(mbitmap2);
                     return view;
@@ -214,6 +233,7 @@ public class commonActivity extends AppCompatActivity {
             pd=new ProgressDialog(commonActivity.this);
         }
         pd.setMessage("正在加载中...");
+        pd.setCancelable(false);
         pd.show();
         new Thread(){
             @Override
