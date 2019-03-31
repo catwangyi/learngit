@@ -68,8 +68,25 @@
     <ImageView
         android:paddingTop="15dp"
         android:layout_width="wrap_content"
-        android:id="@+id/action_bar_activity_postimg"
+        android:id="@+id/activity_post_postimg"
         android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:text="评论"
+            android:textSize="15dp"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="0"
+            android:textSize="15dp"
+            android:id="@+id/activity_post_commentCount"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="20dp"

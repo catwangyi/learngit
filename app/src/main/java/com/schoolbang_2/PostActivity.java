@@ -32,6 +32,7 @@ public class PostActivity extends AppCompatActivity {
     private ImageView userImg;
     private ImageView postImg;
     private TextView postDate;
+    private TextView commentCount;
     private TextView postContent;
     private TextView userName;
     private Button follow;
@@ -51,13 +52,14 @@ public class PostActivity extends AppCompatActivity {
         //标题
         postTitle=findViewById(R.id.activity_post_title);
         postTitle.setText(postItem.getTitle());
+        //评论数量
+        commentCount=findViewById(R.id.activity_post_commentCount);
         //头像
         userImg=findViewById(R.id.activity_post_userimg);
         //userImg.setImageBitmap();
         //图片
-        postImg=findViewById(R.id.action_bar_activity_postimg);
+        postImg=findViewById(R.id.activity_post_postimg);
         if (postItem.getPhoto()==null){
-
         }else{
             File saveFile = new File(getExternalCacheDir(),postItem.getPhoto().getFilename());
             Bitmap mbitmap = BitmapFactory.decodeFile(saveFile.getPath());

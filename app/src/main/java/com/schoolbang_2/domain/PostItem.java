@@ -13,7 +13,6 @@ import cn.bmob.v3.datatype.BmobFile;
 public class PostItem extends BmobObject{
     private String title;//帖子标题
     private String content;//帖子内容
-    //private User author;//帖子作者
     private BmobFile photo;
 
 
@@ -41,11 +40,5 @@ public class PostItem extends BmobObject{
         this.content = content;
     }
 
-    /*public User getAuthor() {
-        return author;
-    }*/
 
-    /*public void setAuthor(User author) {
-        this.author = author;
-    }*/
 }
