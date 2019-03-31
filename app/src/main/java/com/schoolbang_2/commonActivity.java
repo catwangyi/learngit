@@ -197,6 +197,12 @@ public class commonActivity extends AppCompatActivity {
                     //item.setBitmap(mbitmap2);
                     //Bitmap mbitmap2= BitmapUtils.getThumb(saveFile.getPath(),350,350);
                     iv_post_photo.setImageBitmap(mbitmap2);
+                    iv_post_photo.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Toast.makeText(commonActivity.this,"点击了"+item.getTitle() ,Toast.LENGTH_SHORT).show();
+                        }
+                    });
                     return view;
                 }else {//文件不存在
 
