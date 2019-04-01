@@ -1,16 +1,21 @@
 package com.schoolbang_2;
 
+import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -19,12 +24,18 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.schoolbang_2.domain.CommentItem;
 import com.schoolbang_2.domain.PostItem;
 import com.schoolbang_2.fragment.ButtonFragment;
 import com.schoolbang_2.fragment.CommentFragment;
 import com.schoolbang_2.services.User;
 
 import java.io.File;
+import java.util.List;
+
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.FindListener;
 
 /**
  * @version $Rev$
@@ -39,24 +50,47 @@ public class PostActivity extends AppCompatActivity  {
     private ImageView userImg;
     private ImageView postImg;
     private TextView postDate;
+    private List<CommentItem> mCommentItems;
     private User user;//帖子对应用户
     private TextView commentCount;
     private CommentFragment mCommentFragment;
     private ButtonFragment mButtonFragment;
     private TextView postContent;
     private TextView userName;
+    private Bundle bundle;
     private PostItem postItem;
+    private myAdapter adapter;
+    private String objId;
+    private final int SUCCESS=1;
+    private final int ERROR=0;
+    private static final String TAG="PostActivity";
+    private ProgressDialog pd;
+    @SuppressLint("HandlerLeak")
+    private Handler mHandler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            //pd.dismiss();
+            switch (msg.what){
+                case SUCCESS:
+                    mCommentItems= (List<CommentItem>) msg.obj;
+                    if (adapter==null){
+                        adapter=new myAdapter();
+                        lv.setAdapter(adapter);
+                    }else{
+                        adapter.notifyDataSetChanged();
+                    }
+                    lv.setAdapter(adapter);
+                    break;
+                case ERROR:
+                    Toast.makeText(PostActivity.this,"获取数据失败，请检查网络连接！" ,Toast.LENGTH_SHORT ).show();
+                    finish();
+                    break;
+            }
+        }
+    };
 
     public PostItem getPostItem() {
         return postItem;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public void setPostItem(PostItem postItem) {
@@ -67,6 +101,13 @@ public class PostActivity extends AppCompatActivity  {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
+        if (pd==null){
+            pd=new ProgressDialog(PostActivity.this);
+        }
+        /*pd.setMessage("加载中，请稍后");
+        pd.setCancelable(false);
+        pd.show();*/
+        refresh();
         mButtonFragment=new ButtonFragment();
         replaceFragment(mButtonFragment);
         ActionBar actionBar=getSupportActionBar();
@@ -75,6 +116,8 @@ public class PostActivity extends AppCompatActivity  {
         }
         Intent intent=getIntent();
         postItem=(PostItem)intent.getSerializableExtra("postItem");
+        objId=postItem.getObjectId();
+        //Log.i(TAG, "postItem ObjId:"+postItem.getObjectId());
         user=(User)intent.getSerializableExtra("User");
         //评论
         lv=findViewById(R.id.activity_post_listview);
@@ -98,7 +141,8 @@ public class PostActivity extends AppCompatActivity  {
             postImg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(PostActivity.this, "点击",Toast.LENGTH_SHORT ).show();
+                    //点击查看原图
+                    //Toast.makeText(PostActivity.this, "点击",Toast.LENGTH_SHORT ).show();
                 }
             });
         }
@@ -125,6 +169,9 @@ public class PostActivity extends AppCompatActivity  {
     }
 
     private void replaceFragment(Fragment fragment){
+        bundle=new Bundle();
+        bundle.putSerializable("User",user);
+        fragment.setArguments(bundle);
         FragmentManager fragmentManager=getSupportFragmentManager();
         FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.comment_layout,fragment);
@@ -133,6 +180,45 @@ public class PostActivity extends AppCompatActivity  {
             fragmentTransaction.addToBackStack(null);
         }
         fragmentTransaction.commit();
+    }
+    public void refresh(){
+        new Thread(){
+            @Override
+            public void run() {
+                BmobQuery<CommentItem> query=new BmobQuery<>();
+                query.addWhereEqualTo("post",postItem);
+                query.include("post");
+                query.findObjects(new FindListener<CommentItem>() {
+                    @Override
+                    public void done(List<CommentItem> list, BmobException e) {
+                        if (e==null){
+                            Log.i(TAG,"Id"+objId);
+                            //Toast.makeText(PostActivity.this,"id："+objId, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(PostActivity.this,"成功！"+list.get(0).getContent() , Toast.LENGTH_SHORT).show();
+                            if (list.isEmpty()){
+                                Log.i(TAG, "empty");
+                            }else {
+                                for (int i=0;i<list.size();i++){
+                                    Log.i(TAG, "评论："+list.get(i).getContent()+"对应帖子id:"+list.get(i).getPost().getObjectId()+"当前帖子id"+postItem.getObjectId());
+                                    if (list.get(i).getPost().getObjectId()!=postItem.getObjectId()){
+                                        list.remove(i);
+                                    }
+                                }
+                                Message msg=Message.obtain();
+                                msg.what=SUCCESS;
+                                msg.obj=list;
+                                mHandler.sendMessage(msg);
+                            }
+                        }else{
+                            Log.i(TAG,"e:"+e.getMessage());
+                            Message msg=Message.obtain();
+                            msg.what=ERROR;
+                            mHandler.sendMessage(msg);
+                        }
+                    }
+                });
+            }
+        }.start();
     }
 
     private class myAdapter extends BaseAdapter{
@@ -145,16 +231,22 @@ public class PostActivity extends AppCompatActivity  {
             }else {
                 view=convertView;
             }
+            //Log.i(TAG, "commentitems"+mCommentItems.get(1).getContent());
+            CommentItem commentItem=mCommentItems.get(mCommentItems.size()-position-1);
             ImageView userImg=view.findViewById(R.id.commentitem_userimg);
             TextView userName=view.findViewById(R.id.commentitem_username);
             TextView commentDate=view.findViewById(R.id.commentitem_commentdate);
             TextView commentContent=view.findViewById(R.id.commentitem_content);
+            userName.setText(commentItem.getAuthor().getUsername());
+            commentDate.setText(commentItem.getCreatedAt());
+            commentContent.setText(commentItem.getContent());
+            Log.i(TAG, "数据适配成功");
             return view;
         }
 
         @Override
         public int getCount() {
-            return 0;
+            return mCommentItems.size();
         }
 
         @Override

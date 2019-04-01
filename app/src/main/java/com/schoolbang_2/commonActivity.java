@@ -136,7 +136,7 @@ public class commonActivity extends AppCompatActivity {
                 //Toast.makeText(commonActivity.this, "点击标题"+postItem.getTitle(), Toast.LENGTH_SHORT).show();
                 Intent intent=new Intent(commonActivity.this, PostActivity.class);
                 intent.putExtra("User",user );
-                intent.putExtra("postItem",postItem );
+                intent.putExtra("postItem",postItem);
                 //启动活动
                 startActivity(intent);
             }

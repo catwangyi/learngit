@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.schoolbang_2.PostActivity;
 import com.schoolbang_2.R;
 import com.schoolbang_2.domain.CommentItem;
+import com.schoolbang_2.services.User;
 
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.SaveListener;
@@ -60,10 +61,12 @@ public class CommentFragment extends Fragment {
                 if (TextUtils.isEmpty(comment_content)){
                     Toast.makeText(getActivity(),"内容不能为空！" ,Toast.LENGTH_SHORT).show();
                 }else {
-                    PostActivity postActivity=(PostActivity) getActivity();
+                    final PostActivity postActivity=(PostActivity) getActivity();
                     CommentItem commentItem=new CommentItem();
                     commentItem.setPost(postActivity.getPostItem());
                     commentItem.setContent(comment_content);
+                    Bundle bundle= CommentFragment.this.getArguments();
+                    User user=(User)bundle.getSerializable("User");
                     commentItem.setAuthor(user);
                     commentItem.save(new SaveListener<String>() {
                         @Override
@@ -71,6 +74,7 @@ public class CommentFragment extends Fragment {
                             if (e!=null){
                                 Toast.makeText(getActivity(),"评论失败！请检查网络连接" , Toast.LENGTH_SHORT).show();
                             }else{
+                                postActivity.refresh();
                                 FragmentManager fragmentManager=getFragmentManager();
                                 FragmentTransaction transaction=fragmentManager.beginTransaction();
                                 transaction.replace(R.id.comment_layout, new ButtonFragment());

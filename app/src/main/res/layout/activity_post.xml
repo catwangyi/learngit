@@ -23,15 +23,16 @@
                 android:textSize="21dp"
                 android:layout_height="wrap_content"/>
             <LinearLayout
+                android:paddingTop="10dp"
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
                 android:layout_height="wrap_content">
-                <ImageView
+                <com.schoolbang_2.services.CircleImageView
                     android:layout_width="wrap_content"
+                    android:src="@mipmap/ic_launcher"
                     android:id="@+id/activity_post_userimg"
-
                     android:layout_height="wrap_content">
-                </ImageView>
+                </com.schoolbang_2.services.CircleImageView>
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:orientation="vertical"
