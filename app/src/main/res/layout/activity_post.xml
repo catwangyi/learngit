@@ -95,7 +95,7 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="20dp"
-            android:background="#88fccbaa"
+            android:background="#88ffffff"
             />
         <ListView
             android:id="@+id/activity_post_listview"
@@ -123,4 +123,18 @@
             android:textSize="20dp"
             android:layout_height="wrap_content"/>
     </LinearLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:id="@+id/comment_layout"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <fragment
+                android:layout_width="match_parent"
+                android:name="com.schoolbang_2.sendComment"
+                android:id="@+id/comment_fragment"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+    </FrameLayout>
 </LinearLayout>

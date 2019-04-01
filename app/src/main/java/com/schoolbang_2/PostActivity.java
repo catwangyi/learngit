@@ -1,5 +1,6 @@
 package com.schoolbang_2;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -86,7 +87,14 @@ public class PostActivity extends AppCompatActivity  {
     }
 
     public void sendcomment(View view){
-            Toast.makeText(PostActivity.this,"评论！" ,Toast.LENGTH_SHORT ).show();
+        Toast.makeText(PostActivity.this,"评论！" ,Toast.LENGTH_SHORT ).show();
+        //replaceFragment(new sendComment());
     }
 
+    private void replaceFragment(Fragment fragment){
+       /* FragmentManager fragmentManager=getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.comment_layout, fragment);
+        fragmentTransaction.commit();*/
+    }
 }
