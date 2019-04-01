@@ -24,7 +24,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="paddingPercent" value="40" />
+                                                <entry key="paddingPercent" value="50" />
                                                 <entry key="trimmed" value="true" />
                                               </map>
                                             </option>

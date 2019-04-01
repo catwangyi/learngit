@@ -18,6 +18,7 @@ import cn.bmob.v3.listener.SaveListener;
  */
 public class MainActivity extends AppCompatActivity {
     private userDao mDao;
+    private User user;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -28,13 +29,14 @@ public class MainActivity extends AppCompatActivity {
         }
         Bmob.initialize(this, "831152d39b86d435aecb2e72e6aca107");
         mDao = new userDao(this);
-        final User user=mDao.find();//登录
+        user=mDao.find();//登录
         user.login(new SaveListener<Object>() {
             @Override
             public void done(Object o, BmobException e) {
                 if(e == null) {
                     Toast.makeText(MainActivity.this,"欢迎"+user.getUsername(), Toast.LENGTH_SHORT).show();
                     Intent intent=new Intent(MainActivity.this,commonActivity.class);
+                    intent.putExtra("User", user);
                     startActivity(intent);
                     finish();
                 }else{

@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.schoolbang_2.db.dao.userDao;
 import com.schoolbang_2.domain.PostItem;
+import com.schoolbang_2.services.User;
 
 import java.io.File;
 import java.util.List;
@@ -55,6 +56,7 @@ public class commonActivity extends AppCompatActivity {
     private  int IMAGEEXISTS=0;//有图的帖子
     private int NOIMAGE=0;//无图的帖子
     private final int NOMESSAGE=3;
+    private User user;//对应的用户
     private commonAdapter adapter;
     private FloatingActionButton refresh;
     private final String TAG="commonActivity";
@@ -103,15 +105,19 @@ public class commonActivity extends AppCompatActivity {
             actionBar.hide();
         }
         lv=findViewById(R.id.lv);
+        //Toast.makeText(commonActivity.this, new MainActivity().getUser().getId(), Toast.LENGTH_SHORT).show();
         //lv.setScrollbarFadingEnabled(false);//设置滚动条
         get_out=findViewById(R.id.get_out);
         refresh=findViewById(R.id.refresh);
         sendPost=findViewById(R.id.goto_sendpost);
+        Intent intent=getIntent();
+        user=(User)intent.getSerializableExtra("User");
         Refresh();
         sendPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent=new Intent(commonActivity.this,SendPostActivity.class);
+                intent.putExtra("User",user );
                 startActivity(intent);
             }
         });
@@ -129,6 +135,7 @@ public class commonActivity extends AppCompatActivity {
                 Log.i(TAG,"position:"+position+"post:objId"+postItem.getObjectId());
                 //Toast.makeText(commonActivity.this, "点击标题"+postItem.getTitle(), Toast.LENGTH_SHORT).show();
                 Intent intent=new Intent(commonActivity.this, PostActivity.class);
+                intent.putExtra("User",user );
                 intent.putExtra("postItem",postItem );
                 //启动活动
                 startActivity(intent);
@@ -200,7 +207,7 @@ public class commonActivity extends AppCompatActivity {
                     iv_post_photo.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Toast.makeText(commonActivity.this,"点击了"+item.getTitle() ,Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(commonActivity.this,"点击了"+item.getTitle() ,Toast.LENGTH_SHORT).show();
                         }
                     });
                     return view;

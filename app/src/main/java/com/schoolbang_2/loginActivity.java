@@ -32,6 +32,7 @@ public class loginActivity extends AppCompatActivity{
     private EditText et_pwd;
     private Button login;
     private userDao mDao;
+    private User user;
     private Button registered;
     private final String TAG="loginActivity";
     private void check(){
@@ -55,6 +56,15 @@ public class loginActivity extends AppCompatActivity{
             }
         });
     }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     @Override
     public void onCreate( Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -86,7 +96,7 @@ public class loginActivity extends AppCompatActivity{
                     return;
                 }
                 //Toast.makeText(loginActivity.this, "进入！", Toast.LENGTH_SHORT).show();
-                User user = new User();
+                user = new User();
                 user.setUsername(name);
                 user.setPassword(pwd);
                 user.login(new SaveListener<User>() {
@@ -94,7 +104,9 @@ public class loginActivity extends AppCompatActivity{
                     public void done(User user, BmobException e) {
                                 if(e == null) {//登录成功
                                     Intent intent=new Intent(loginActivity.this,commonActivity.class);
+                                    intent.putExtra("User",user );
                                     startActivity(intent);
+                                    Toast.makeText(loginActivity.this, "欢迎 "+user.getUsername(), Toast.LENGTH_SHORT).show();
                                     mDao.save(name,pwd);
                                     finish();
                                 }else{

@@ -57,7 +57,7 @@ public class SendPostActivity extends AppCompatActivity {
     private static final String TAG="SendPostActivity";
     private ImageView picture;
     private Uri imageUri;
-    private User author;
+    private User user;
     private String imagePath;
     private String imagePath_take;
     private ProgressDialog mProgressDialog;
@@ -74,6 +74,8 @@ public class SendPostActivity extends AppCompatActivity {
         post_title=findViewById(R.id.send_post_title);
         picture=findViewById(R.id.iv_picture);
         post_content=findViewById(R.id.send_post_content);
+        Intent intent=getIntent();
+        user=(User)intent.getSerializableExtra("User");
         Button send_post;
         Button takePhoto=findViewById(R.id.take_photo);
         Button chooseFromAlbum=findViewById(R.id.choose_from_album);
@@ -266,6 +268,7 @@ public class SendPostActivity extends AppCompatActivity {
         postItem.setTitle(post_title.getText().toString().trim());
         postItem.setContent(post_content.getText().toString().trim());
         postItem.setPhoto(image);
+        postItem.setAuthor(user);
         postItem.save(new SaveListener<String>() {
             @Override
             public void done(String s, BmobException e) {

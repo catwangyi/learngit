@@ -15,6 +15,7 @@ import cn.bmob.v3.datatype.BmobFile;
  */
 public class User extends BmobUser {
     private String id;
+    //登陆用username
     private String nickName;
     private PostItem mPostItem;
     private CommentItem mCommentItem;

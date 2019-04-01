@@ -103,38 +103,14 @@
             android:layout_height="wrap_content">
         </ListView>
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:layout_height="wrap_content">
-        <Button
-            android:layout_width="wrap_content"
-            android:text="评论"
-            android:textStyle="bold"
-            android:onClick="sendcomment"
-            android:textSize="20dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_weight="1"
-            android:onClick="dianji"
-            android:text="follow"
-            android:textSize="20dp"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
     <FrameLayout
         android:layout_width="match_parent"
         android:id="@+id/comment_layout"
         android:layout_height="wrap_content">
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <fragment
-                android:layout_width="match_parent"
-                android:name="com.schoolbang_2.sendComment"
-                android:id="@+id/comment_fragment"
-                android:layout_height="wrap_content"/>
-        </RelativeLayout>
+    </FrameLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:id="@+id/button_layout"
+        android:layout_height="wrap_content">
     </FrameLayout>
 </LinearLayout>
