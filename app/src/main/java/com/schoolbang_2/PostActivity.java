@@ -31,7 +31,6 @@ import com.schoolbang_2.fragment.CommentFragment;
 import com.schoolbang_2.services.User;
 
 import java.io.File;
-import java.util.Iterator;
 import java.util.List;
 
 import cn.bmob.v3.BmobQuery;
@@ -61,7 +60,6 @@ public class PostActivity extends AppCompatActivity  {
     private Bundle bundle;
     private PostItem postItem;
     private myAdapter adapter;
-    private String objId;
     private final int SUCCESS=1;
     private final int ERROR=0;
     private static final String TAG="PostActivity";
@@ -108,7 +106,6 @@ public class PostActivity extends AppCompatActivity  {
         /*pd.setMessage("加载中，请稍后");
         pd.setCancelable(false);
         pd.show();*/
-        refresh();
         mButtonFragment=new ButtonFragment();
         replaceFragment(mButtonFragment);
         ActionBar actionBar=getSupportActionBar();
@@ -117,7 +114,6 @@ public class PostActivity extends AppCompatActivity  {
         }
         Intent intent=getIntent();
         postItem=(PostItem)intent.getSerializableExtra("postItem");
-        objId=postItem.getObjectId();
         //Log.i(TAG, "postItem ObjId:"+postItem.getObjectId());
         user=(User)intent.getSerializableExtra("User");
         //评论
@@ -125,8 +121,7 @@ public class PostActivity extends AppCompatActivity  {
         //标题
         postTitle=findViewById(R.id.activity_post_title);
         postTitle.setText(postItem.getTitle());
-        //评论数量
-        commentCount=findViewById(R.id.activity_post_commentCount);
+
         //头像
         userImg=findViewById(R.id.activity_post_userimg);
         //userImg.setImageBitmap();
@@ -156,6 +151,9 @@ public class PostActivity extends AppCompatActivity  {
         //内容
         postContent=findViewById(R.id.activity_post_content);
         postContent.setText(postItem.getContent());
+        refresh();
+        //评论数量
+        commentCount=findViewById(R.id.activity_post_commentCount);
     }
     public void dianji (View view){
             Toast.makeText(PostActivity.this,"follow！" ,Toast.LENGTH_SHORT ).show();
@@ -187,27 +185,20 @@ public class PostActivity extends AppCompatActivity  {
             @Override
             public void run() {
                 BmobQuery<CommentItem> query=new BmobQuery<>();
-                query.addWhereEqualTo("post",postItem);
+                query.addWhereEqualTo("post",postItem.getObjectId());
                 query.include("post");
                 query.findObjects(new FindListener<CommentItem>() {
                     @Override
                     public void done(List<CommentItem> list, BmobException e) {
                         if (e==null){
-                            Log.i(TAG,"Id"+objId);
-                            //Toast.makeText(PostActivity.this,"id："+objId, Toast.LENGTH_SHORT).show();
-                            //Toast.makeText(PostActivity.this,"成功！"+list.get(0).getContent() , Toast.LENGTH_SHORT).show();
+                            Log.i(TAG,"Id"+postItem.getObjectId());
                             if (list.isEmpty()){
                                 Log.i(TAG, "empty");
                             }else {
-                                Iterator<CommentItem> iterator=list.iterator();
-                                while (iterator.hasNext()){
-                                    CommentItem commentItem=iterator.next();
-                                    if (!commentItem.getPost().getObjectId().equals(objId)){
-                                        Log.i(TAG,"comment:"+commentItem.getContent()+"对应帖子的Id"+commentItem.getPost().getObjectId());
-                                        iterator.remove();
-                                        Log.i(TAG, "删除"+commentItem.getContent());
-                                    }
+                                for (int i=0;i<list.size();i++){
+                                    Log.i(TAG,"评论内容+"+ list.get(i).getContent());
                                 }
+                                commentCount.setText(""+list.size());
                                 Message msg=Message.obtain();
                                 msg.what=SUCCESS;
                                 msg.obj=list;
