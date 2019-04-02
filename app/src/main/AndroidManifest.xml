@@ -48,6 +48,9 @@
         <activity android:name=".RegisteredActivity"
                   android:label="注册">
         </activity>
+        <activity android:name=".ShowImageActivity"
+                  android:label="图片">
+        </activity>
         <activity android:name=".commonActivity"
             android:label="社区">
 

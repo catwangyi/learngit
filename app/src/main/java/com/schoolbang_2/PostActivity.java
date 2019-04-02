@@ -1,5 +1,6 @@
 package com.schoolbang_2;
 
+import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -49,6 +50,7 @@ public class PostActivity extends AppCompatActivity  {
     private TextView postTitle;
     private ImageView userImg;
     private ImageView postImg;
+    private Animator mCurrentAnimator;//动画，可以再动画执行过程中取消
     private TextView postDate;
     private List<CommentItem> mCommentItems;
     private User user;//帖子对应用户
@@ -59,6 +61,7 @@ public class PostActivity extends AppCompatActivity  {
     private TextView userName;
     private Bundle bundle;
     private PostItem postItem;
+    private int mShortAnimationDuration;
     private myAdapter adapter;
     private final int SUCCESS=1;
     private final int ERROR=0;
@@ -112,7 +115,7 @@ public class PostActivity extends AppCompatActivity  {
         if (actionBar!=null){
             actionBar.hide();
         }
-        Intent intent=getIntent();
+        final Intent intent=getIntent();
         postItem=(PostItem)intent.getSerializableExtra("postItem");
         //Log.i(TAG, "postItem ObjId:"+postItem.getObjectId());
         user=(User)intent.getSerializableExtra("User");
@@ -130,15 +133,19 @@ public class PostActivity extends AppCompatActivity  {
         if (postItem.getPhoto()==null){
 
         }else{
-            File saveFile = new File(getExternalCacheDir(),postItem.getPhoto().getFilename());
-            Bitmap mbitmap = BitmapFactory.decodeFile(saveFile.getPath());
+            final File saveFile = new File(getExternalCacheDir(),postItem.getPhoto().getFilename());
+            //原图
+            final Bitmap mbitmap = BitmapFactory.decodeFile(saveFile.getPath());
+            //缩略图
             Bitmap mbitmap2= ThumbnailUtils.extractThumbnail(mbitmap, 350,350 );
             postImg.setImageBitmap(mbitmap2);
             postImg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     //点击查看原图
-                    //Toast.makeText(PostActivity.this, "点击",Toast.LENGTH_SHORT ).show();
+                    Intent intentToImage=new Intent(PostActivity.this, ShowImageActivity.class);
+                    intentToImage.putExtra("imagepath",saveFile.getPath());
+                    startActivity(intentToImage);
                 }
             });
         }
@@ -254,4 +261,5 @@ public class PostActivity extends AppCompatActivity  {
             return 0;
         }
     }
+
 }

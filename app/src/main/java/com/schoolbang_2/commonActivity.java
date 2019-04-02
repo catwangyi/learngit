@@ -207,7 +207,10 @@ public class commonActivity extends AppCompatActivity {
                     iv_post_photo.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            //Toast.makeText(commonActivity.this,"点击了"+item.getTitle() ,Toast.LENGTH_SHORT).show();
+                            //点击查看大图
+                            Intent intentToImage=new Intent(commonActivity.this, ShowImageActivity.class);
+                            intentToImage.putExtra("imagepath",saveFile.getPath());
+                            startActivity(intentToImage);
                         }
                     });
                     return view;
