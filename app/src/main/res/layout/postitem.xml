@@ -48,6 +48,7 @@
         android:layout_alignParentRight="true"
         android:id="@+id/iv_post_photo"
         android:layout_marginLeft="15dp"
+        android:layout_marginBottom="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
