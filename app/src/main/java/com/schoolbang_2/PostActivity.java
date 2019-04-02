@@ -31,6 +31,7 @@ import com.schoolbang_2.fragment.CommentFragment;
 import com.schoolbang_2.services.User;
 
 import java.io.File;
+import java.util.Iterator;
 import java.util.List;
 
 import cn.bmob.v3.BmobQuery;
@@ -198,10 +199,13 @@ public class PostActivity extends AppCompatActivity  {
                             if (list.isEmpty()){
                                 Log.i(TAG, "empty");
                             }else {
-                                for (int i=0;i<list.size();i++){
-                                    Log.i(TAG, "评论："+list.get(i).getContent()+"对应帖子id:"+list.get(i).getPost().getObjectId()+"当前帖子id"+postItem.getObjectId());
-                                    if (list.get(i).getPost().getObjectId()!=postItem.getObjectId()){
-                                        list.remove(i);
+                                Iterator<CommentItem> iterator=list.iterator();
+                                while (iterator.hasNext()){
+                                    CommentItem commentItem=iterator.next();
+                                    if (!commentItem.getPost().getObjectId().equals(objId)){
+                                        Log.i(TAG,"comment:"+commentItem.getContent()+"对应帖子的Id"+commentItem.getPost().getObjectId());
+                                        iterator.remove();
+                                        Log.i(TAG, "删除"+commentItem.getContent());
                                     }
                                 }
                                 Message msg=Message.obtain();
