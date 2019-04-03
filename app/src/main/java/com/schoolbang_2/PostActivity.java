@@ -36,6 +36,7 @@ import java.util.List;
 
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.DownloadFileListener;
 import cn.bmob.v3.listener.FindListener;
 
 /**
@@ -64,14 +65,17 @@ public class PostActivity extends AppCompatActivity  {
     private int mShortAnimationDuration;
     private myAdapter adapter;
     private final int SUCCESS=1;
+    private String imgpath;
     private final int ERROR=0;
+    private final int USERIMG=3;
+    private final int NO=2;
     private static final String TAG="PostActivity";
     private ProgressDialog pd;
     @SuppressLint("HandlerLeak")
     private Handler mHandler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            //pd.dismiss();
+            pd.dismiss();
             switch (msg.what){
                 case SUCCESS:
                     mCommentItems= (List<CommentItem>) msg.obj;
@@ -84,9 +88,17 @@ public class PostActivity extends AppCompatActivity  {
                     lv.setAdapter(adapter);
                     break;
                 case ERROR:
-                    Toast.makeText(PostActivity.this,"获取评论失败，请检查网络连接！" ,Toast.LENGTH_SHORT ).show();
+                    Toast.makeText(PostActivity.this,"请检查网络连接！" ,Toast.LENGTH_SHORT ).show();
                     //finish();
                     break;
+                case NO:
+                    //Toast.makeText(PostActivity.this,"请检查网络连接！" ,Toast.LENGTH_SHORT ).show();
+                    //finish();
+                    break;
+                    case USERIMG:
+                        Bitmap mbitmap = BitmapFactory.decodeFile((String) msg.obj);
+                        userImg.setImageBitmap(mbitmap);
+                        break;
             }
         }
     };
@@ -106,9 +118,6 @@ public class PostActivity extends AppCompatActivity  {
         if (pd==null){
             pd=new ProgressDialog(PostActivity.this);
         }
-        /*pd.setMessage("加载中，请稍后");
-        pd.setCancelable(false);
-        pd.show();*/
         mButtonFragment=new ButtonFragment();
         replaceFragment(mButtonFragment);
         ActionBar actionBar=getSupportActionBar();
@@ -117,6 +126,7 @@ public class PostActivity extends AppCompatActivity  {
         }
         final Intent intent=getIntent();
         postItem=(PostItem)intent.getSerializableExtra("postItem");
+       // Log.i(TAG,"authorname" +postItem.getAuthor().getPhoto().getFilename());
         //Log.i(TAG, "postItem ObjId:"+postItem.getObjectId());
         user=(User)intent.getSerializableExtra("User");
         //评论
@@ -158,9 +168,9 @@ public class PostActivity extends AppCompatActivity  {
         //内容
         postContent=findViewById(R.id.activity_post_content);
         postContent.setText(postItem.getContent());
-        refresh();
         //评论数量
         commentCount=findViewById(R.id.activity_post_commentCount);
+        refresh();
     }
     public void dianji (View view){
             Toast.makeText(PostActivity.this,"follow！" ,Toast.LENGTH_SHORT ).show();
@@ -188,9 +198,56 @@ public class PostActivity extends AppCompatActivity  {
         fragmentTransaction.commit();
     }
     public void refresh(){
+        pd.setMessage("加载中，请稍后");
+        pd.setCancelable(false);
+        pd.show();
         new Thread(){
             @Override
             public void run() {
+                final File userimg = new File(getExternalCacheDir(),postItem.getAuthor().getPhoto().getFilename());
+                Log.i(TAG,"头像的真实名称:"+ postItem.getAuthor().getPhoto().getFilename());
+                Log.i(TAG, "头像保存路径:"+userimg.getPath());
+                Log.i(TAG,"userid:"+ postItem.getAuthor().getObjectId());
+                imgpath=userimg.getPath();
+                if (userimg.exists()){
+                    //文件存在，不处理
+                    Log.i(TAG,"文件存在"+userimg.getPath());
+                    Message msg=Message.obtain();
+                    msg.what=USERIMG;
+                    msg.obj=imgpath;
+                    mHandler.sendMessage(msg);
+                }else {
+                    imgpath=userimg.getPath();
+                    BmobQuery<PostItem> query=new BmobQuery<>();
+                    query.addWhereEqualTo("objectId",(String)postItem.getObjectId());
+                    query.include("author");
+                    query.findObjects(new FindListener<PostItem>() {
+                        @Override
+                        public void done(List<PostItem> list, BmobException e) {
+                            if (e==null){
+
+                                list.get(0).getAuthor().getPhoto().download(userimg, new DownloadFileListener() {
+                                    @Override
+                                    public void done(String s, BmobException e) {
+                                        Message msg=Message.obtain();
+                                        msg.what=USERIMG;
+                                        msg.obj=imgpath;
+                                        mHandler.sendMessage(msg);
+                                    }
+
+                                    @Override
+                                    public void onProgress(Integer integer, long l) {
+
+                                    }
+                                });
+                            }else{
+                                Message msg=Message.obtain();
+                                msg.what=ERROR;
+                                mHandler.sendMessage(msg);
+                            }
+                        }
+                    });
+                }
                 BmobQuery<CommentItem> query=new BmobQuery<>();
                 query.addWhereEqualTo("post",postItem.getObjectId());
                 query.include("post");
@@ -203,6 +260,9 @@ public class PostActivity extends AppCompatActivity  {
                                 Log.i(TAG,"Id"+postItem.getObjectId());
                                 if (list.size()==0){
                                     Log.i(TAG, "empty");
+                                    Message msg=Message.obtain();
+                                    msg.what=NO;
+                                    mHandler.sendMessage(msg);
                                 }else {
                                     for (int i=0;i<list.size();i++){
                                         Log.i(TAG,"评论内容+"+ list.get(i).getContent());
@@ -213,6 +273,10 @@ public class PostActivity extends AppCompatActivity  {
                                     msg.obj=list;
                                     mHandler.sendMessage(msg);
                                 }
+                            }else {
+                                Message msg=Message.obtain();
+                                msg.what=NO;
+                                mHandler.sendMessage(msg);
                             }
                         }else {
                             Log.i(TAG, e.getMessage());

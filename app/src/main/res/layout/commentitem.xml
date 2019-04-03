@@ -14,7 +14,6 @@
         <com.schoolbang_2.services.CircleImageView
             android:layout_width="50dp"
             android:paddingTop="5dp"
-            android:src="@mipmap/ic_launcher"
             android:id="@+id/commentitem_userimg"
             android:layout_height="50dp"/>
         <LinearLayout
