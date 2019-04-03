@@ -51,6 +51,7 @@ public class RegisteredActivity extends AppCompatActivity {
     public static final int CHOOSE_PHOTO=2;
     private EditText et_nickname;
     private String imagePath;
+    private EditText et_phone_reg;
     final String TAG="RegisteredActivity";
     private Button registered;
     @Override
@@ -62,6 +63,7 @@ public class RegisteredActivity extends AppCompatActivity {
             actionBar.hide();
         }
         et_username=findViewById(R.id.et_name_reg);
+        et_phone_reg=findViewById(R.id.et_phone_reg);
         et_nickname=findViewById(R.id.et_nickname_reg);
         et_pwd=findViewById(R.id.et_pwd_reg);
         et_pwd_confirm=findViewById(R.id.et_pwd_confirm_reg);
@@ -84,12 +86,13 @@ public class RegisteredActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String username=et_username.getText().toString().trim();
                 String pwd=et_pwd.getText().toString().trim();
+                String phone=et_phone_reg.getText().toString().trim();
                 String nickName=et_nickname.getText().toString().trim();
                 String pwd_confirm=et_pwd_confirm.getText().toString().trim();
-                if (TextUtils.isEmpty(username)||TextUtils.isEmpty(pwd)||TextUtils.isEmpty(nickName)){
+                if (TextUtils.isEmpty(username)||TextUtils.isEmpty(pwd)||TextUtils.isEmpty(nickName)||TextUtils.isEmpty(phone)){
                     Toast.makeText(RegisteredActivity.this,"信息不能为空！" , Toast.LENGTH_SHORT).show();
                 }else if(TextUtils.isEmpty(imagePath)){
-                    Toast.makeText(RegisteredActivity.this,"信息不能为空！" , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisteredActivity.this,"头像不能为空！" , Toast.LENGTH_SHORT).show();
                 }
                 else{
                 if ((pwd_confirm.equals(pwd))){
@@ -239,11 +242,13 @@ public class RegisteredActivity extends AppCompatActivity {
     }
     private void save(BmobFile image) {
         String username=et_username.getText().toString().trim();
+        String phone=et_phone_reg.getText().toString().trim();
         String pwd=et_pwd.getText().toString().trim();
         String nickName=et_nickname.getText().toString().trim();
         User user=new User();
         user.setUsername(username);
         user.setPassword(pwd);
+        user.setPhone(phone);
         user.setPhoto(image);
         user.setNickName(nickName);
         user.signUp(new SaveListener<User>() {

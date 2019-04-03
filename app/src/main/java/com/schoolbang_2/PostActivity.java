@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -46,7 +47,7 @@ import cn.bmob.v3.listener.FindListener;
  * @updateAuther $Auther$
  * @updateDes ${TODO}
  */
-public class PostActivity extends AppCompatActivity  {
+public class PostActivity extends AppCompatActivity {
     private ListView lv;
     private TextView postTitle;
     private ImageView userImg;
@@ -64,48 +65,48 @@ public class PostActivity extends AppCompatActivity  {
     private PostItem postItem;
     private int mShortAnimationDuration;
     private myAdapter adapter;
-    private final int SUCCESS=1;
+    private final int SUCCESS = 1;
     private String imgpath;
     //private int UserImgOfPost;
     private int UserImgOfComment;
     private int FileExists;
-    private final int ERROR=0;
-    private final int USERIMG=3;
-    private final int NO=2;
-    private static final String TAG="PostActivity";
+    private final int ERROR = 0;
+    private final int USERIMG = 3;
+    private final int NO = 2;
+    private static final String TAG = "PostActivity";
     private ProgressDialog pd;
     @SuppressLint("HandlerLeak")
-    private Handler mHandler=new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             pd.dismiss();
-            switch (msg.what){
+            switch (msg.what) {
                 case SUCCESS:
-                    mCommentItems= (List<CommentItem>) msg.obj;
-                    Log.i(TAG,"mCommentItems.size()"+mCommentItems.size() );
-                        UserImgOfComment=0;
-                        FileExists=0;
-                        if (adapter==null){
-                            adapter=new myAdapter();
-                            lv.setAdapter(adapter);
-                        }else{
-                            adapter.notifyDataSetChanged();
-                        }
+                    mCommentItems = (List<CommentItem>) msg.obj;
+                    Log.i(TAG, "mCommentItems.size()" + mCommentItems.size());
+                    UserImgOfComment = 0;
+                    FileExists = 0;
+                    if (adapter == null) {
+                        adapter = new myAdapter();
                         lv.setAdapter(adapter);
+                    } else {
+                        adapter.notifyDataSetChanged();
+                    }
+                    lv.setAdapter(adapter);
 
                     break;
                 case ERROR:
-                    Toast.makeText(PostActivity.this,"请检查网络连接！" ,Toast.LENGTH_SHORT ).show();
+                    Toast.makeText(PostActivity.this, "请检查网络连接！", Toast.LENGTH_SHORT).show();
                     //finish();
                     break;
                 case NO:
                     //Toast.makeText(PostActivity.this,"请检查网络连接！" ,Toast.LENGTH_SHORT ).show();
                     //finish();
                     break;
-                    case USERIMG:
-                        Bitmap mbitmap = BitmapFactory.decodeFile((String) msg.obj);
-                        userImg.setImageBitmap(mbitmap);
-                        break;
+                case USERIMG:
+                    Bitmap mbitmap = BitmapFactory.decodeFile((String) msg.obj);
+                    userImg.setImageBitmap(mbitmap);
+                    break;
             }
         }
     };
@@ -122,63 +123,79 @@ public class PostActivity extends AppCompatActivity  {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
-        pd=new ProgressDialog(PostActivity.this);
-        mButtonFragment=new ButtonFragment();
+        pd = new ProgressDialog(PostActivity.this);
+        mButtonFragment = new ButtonFragment();
         replaceFragment(mButtonFragment);
-        ActionBar actionBar=getSupportActionBar();
-        if (actionBar!=null){
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
             actionBar.hide();
         }
-        final Intent intent=getIntent();
-        postItem=(PostItem)intent.getSerializableExtra("postItem");
-       // Log.i(TAG,"authorname" +postItem.getAuthor().getPhoto().getFilename());
+        final Intent intent = getIntent();
+        postItem = (PostItem) intent.getSerializableExtra("postItem");
+        // Log.i(TAG,"authorname" +postItem.getAuthor().getPhoto().getFilename());
         //Log.i(TAG, "postItem ObjId:"+postItem.getObjectId());
-        user=(User)intent.getSerializableExtra("User");
+        user = (User) intent.getSerializableExtra("User");
         //评论
-        lv=findViewById(R.id.activity_post_listview);
+        lv = findViewById(R.id.activity_post_listview);
         //标题
-        postTitle=findViewById(R.id.activity_post_title);
+        postTitle = findViewById(R.id.activity_post_title);
         postTitle.setText(postItem.getTitle());
 
         //头像
-        userImg=findViewById(R.id.activity_post_userimg);
+        userImg = findViewById(R.id.activity_post_userimg);
         //userImg.setImageBitmap();
         //创建时间
-        postDate=findViewById(R.id.activity_post_date);
+        postDate = findViewById(R.id.activity_post_date);
         postDate.setText(postItem.getCreatedAt());
         //用户名
-        nickName=findViewById(R.id.activity_post_nickname);
+        nickName = findViewById(R.id.activity_post_nickname);
         nickName.setText(postItem.getAuthor().getNickName());
         //内容
-        postContent=findViewById(R.id.activity_post_content);
+        postContent = findViewById(R.id.activity_post_content);
         postContent.setText(postItem.getContent());
         //评论数量
-        commentCount=findViewById(R.id.activity_post_commentCount);
+        commentCount = findViewById(R.id.activity_post_commentCount);
         //图片
-        postImg=findViewById(R.id.activity_post_postimg);
+        postImg = findViewById(R.id.activity_post_postimg);
         refresh();
-        if (postItem.getPhoto()==null){
+        if (postItem.getPhoto() == null) {
 
-        }else{
-            final File saveFile = new File(getExternalCacheDir(),postItem.getPhoto().getFilename());
+        } else {
+            final File saveFile = new File(getExternalCacheDir(), postItem.getPhoto().getFilename());
             //原图
             final Bitmap mbitmap = BitmapFactory.decodeFile(saveFile.getPath());
             //缩略图
-            Bitmap mbitmap2= ThumbnailUtils.extractThumbnail(mbitmap, 350,350 );
+            Bitmap mbitmap2 = ThumbnailUtils.extractThumbnail(mbitmap, 350, 350);
             postImg.setImageBitmap(mbitmap2);
             postImg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     //点击查看原图
-                    Intent intentToImage=new Intent(PostActivity.this, ShowImageActivity.class);
-                    intentToImage.putExtra("imagepath",saveFile.getPath());
+                    Intent intentToImage = new Intent(PostActivity.this, ShowImageActivity.class);
+                    intentToImage.putExtra("imagepath", saveFile.getPath());
                     startActivity(intentToImage);
                 }
             });
         }
     }
-    public void dianji (View view){
-            Toast.makeText(PostActivity.this,"follow！" ,Toast.LENGTH_SHORT ).show();
+
+
+    public void dianji(View view) {
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        String phone = "tel:" + postItem.getAuthor().getPhone();
+        Log.i(TAG, "phone" + phone);
+        intent.setData(Uri.parse(phone));
+       /* if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }*/
+        startActivityForResult(intent,1);
     }
 
     public void editcomment(View view){
