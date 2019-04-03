@@ -77,6 +77,7 @@ public class CommentFragment extends Fragment {
                                 Toast.makeText(getActivity(),"评论失败！请检查网络连接" , Toast.LENGTH_SHORT).show();
                             }else{
                                 postActivity.refresh();
+                                commentContent.setText("");
                                 PostActivity postActivity=(PostActivity) getActivity();
                                 postActivity.replaceFragment(new ButtonFragment());
                                 CommentFragment.this.onDestroy();

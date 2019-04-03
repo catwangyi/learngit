@@ -2,7 +2,9 @@ package com.schoolbang_2;
 
 import android.animation.Animator;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,6 +28,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.schoolbang_2.db.dao.userDao;
 import com.schoolbang_2.domain.CommentItem;
 import com.schoolbang_2.domain.PostItem;
 import com.schoolbang_2.fragment.ButtonFragment;
@@ -181,21 +184,34 @@ public class PostActivity extends AppCompatActivity {
 
 
     public void dianji(View view) {
-        Intent intent = new Intent(Intent.ACTION_DIAL);
-        String phone = "tel:" + postItem.getAuthor().getPhone();
-        Log.i(TAG, "phone" + phone);
-        intent.setData(Uri.parse(phone));
-       /* if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }*/
-        startActivityForResult(intent,1);
+        AlertDialog.Builder builder=new AlertDialog.Builder(PostActivity.this);
+        builder.setTitle("提醒：");
+        builder.setMessage("确定要联系TA吗？");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //showMessage("进入onclick");
+                userDao mDao=new userDao(PostActivity.this);
+                int result=mDao.deleteAll();
+                if (result!=0){
+                    Toast.makeText(PostActivity.this,"马上！",Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(Intent.ACTION_DIAL);
+                    String phone = "tel:" + postItem.getAuthor().getPhone();
+                    Log.i(TAG, "phone" + phone);
+                    intent.setData(Uri.parse(phone));
+                    startActivity(intent);
+                }else {
+                    Toast.makeText(PostActivity.this,"出错了？？",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        builder.setNegativeButton("再想想", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.show();
     }
 
     public void editcomment(View view){
