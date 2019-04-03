@@ -82,7 +82,6 @@ public class PostActivity extends AppCompatActivity  {
                 case SUCCESS:
                     mCommentItems= (List<CommentItem>) msg.obj;
                     Log.i(TAG,"mCommentItems.size()"+mCommentItems.size() );
-                    if (mCommentItems.size()==UserImgOfComment){
                         UserImgOfComment=0;
                         if (adapter==null){
                             adapter=new myAdapter();
@@ -91,7 +90,7 @@ public class PostActivity extends AppCompatActivity  {
                             adapter.notifyDataSetChanged();
                         }
                         lv.setAdapter(adapter);
-                    }
+
                     break;
                 case ERROR:
                     Toast.makeText(PostActivity.this,"请检查网络连接！" ,Toast.LENGTH_SHORT ).show();
@@ -293,11 +292,13 @@ public class PostActivity extends AppCompatActivity  {
                                             });
                                         }
                                     }
-                                    commentCount.setText(""+list.size());
-                                    Message msg=Message.obtain();
-                                    msg.what=SUCCESS;
-                                    msg.obj=list;
-                                    mHandler.sendMessage(msg);
+                                    if (UserImgOfComment==list.size()){
+                                        commentCount.setText(""+list.size());
+                                        Message msg=Message.obtain();
+                                        msg.what=SUCCESS;
+                                        msg.obj=list;
+                                        mHandler.sendMessage(msg);
+                                    }
                                 }
                             }else {
                                /* Message msg=Message.obtain();
