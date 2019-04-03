@@ -66,6 +66,8 @@ public class PostActivity extends AppCompatActivity  {
     private myAdapter adapter;
     private final int SUCCESS=1;
     private String imgpath;
+    //private int UserImgOfPost;
+    private int UserImgOfComment;
     private final int ERROR=0;
     private final int USERIMG=3;
     private final int NO=2;
@@ -79,13 +81,17 @@ public class PostActivity extends AppCompatActivity  {
             switch (msg.what){
                 case SUCCESS:
                     mCommentItems= (List<CommentItem>) msg.obj;
-                    if (adapter==null){
-                        adapter=new myAdapter();
+                    Log.i(TAG,"mCommentItems.size()"+mCommentItems.size() );
+                    if (mCommentItems.size()==UserImgOfComment){
+                        UserImgOfComment=0;
+                        if (adapter==null){
+                            adapter=new myAdapter();
+                            lv.setAdapter(adapter);
+                        }else{
+                            adapter.notifyDataSetChanged();
+                        }
                         lv.setAdapter(adapter);
-                    }else{
-                        adapter.notifyDataSetChanged();
                     }
-                    lv.setAdapter(adapter);
                     break;
                 case ERROR:
                     Toast.makeText(PostActivity.this,"请检查网络连接！" ,Toast.LENGTH_SHORT ).show();
@@ -115,9 +121,7 @@ public class PostActivity extends AppCompatActivity  {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
-        if (pd==null){
-            pd=new ProgressDialog(PostActivity.this);
-        }
+        pd=new ProgressDialog(PostActivity.this);
         mButtonFragment=new ButtonFragment();
         replaceFragment(mButtonFragment);
         ActionBar actionBar=getSupportActionBar();
@@ -138,6 +142,17 @@ public class PostActivity extends AppCompatActivity  {
         //头像
         userImg=findViewById(R.id.activity_post_userimg);
         //userImg.setImageBitmap();
+        //创建时间
+        postDate=findViewById(R.id.activity_post_date);
+        postDate.setText(postItem.getCreatedAt());
+        //用户名
+        nickName=findViewById(R.id.activity_post_nickname);
+        nickName.setText(postItem.getAuthor().getNickName());
+        //内容
+        postContent=findViewById(R.id.activity_post_content);
+        postContent.setText(postItem.getContent());
+        //评论数量
+        commentCount=findViewById(R.id.activity_post_commentCount);
         //图片
         postImg=findViewById(R.id.activity_post_postimg);
         if (postItem.getPhoto()==null){
@@ -159,17 +174,6 @@ public class PostActivity extends AppCompatActivity  {
                 }
             });
         }
-        //创建时间
-        postDate=findViewById(R.id.activity_post_date);
-        postDate.setText(postItem.getCreatedAt());
-        //用户名
-        nickName=findViewById(R.id.activity_post_nickname);
-        nickName.setText(postItem.getAuthor().getNickName());
-        //内容
-        postContent=findViewById(R.id.activity_post_content);
-        postContent.setText(postItem.getContent());
-        //评论数量
-        commentCount=findViewById(R.id.activity_post_commentCount);
         refresh();
     }
     public void dianji (View view){
@@ -212,10 +216,12 @@ public class PostActivity extends AppCompatActivity  {
                 if (userimg.exists()){
                     //文件存在，不处理
                     Log.i(TAG,"文件存在"+userimg.getPath());
-                    Message msg=Message.obtain();
+                    /*Message msg=Message.obtain();
                     msg.what=USERIMG;
                     msg.obj=imgpath;
-                    mHandler.sendMessage(msg);
+                    mHandler.sendMessage(msg);*/
+                    Bitmap mbitmap = BitmapFactory.decodeFile(imgpath);
+                    userImg.setImageBitmap(mbitmap);
                 }else {
                     imgpath=userimg.getPath();
                     BmobQuery<PostItem> query=new BmobQuery<>();
@@ -229,10 +235,12 @@ public class PostActivity extends AppCompatActivity  {
                                 list.get(0).getAuthor().getPhoto().download(userimg, new DownloadFileListener() {
                                     @Override
                                     public void done(String s, BmobException e) {
-                                        Message msg=Message.obtain();
+                                        /*Message msg=Message.obtain();
                                         msg.what=USERIMG;
                                         msg.obj=imgpath;
-                                        mHandler.sendMessage(msg);
+                                        mHandler.sendMessage(msg);*/
+                                        Bitmap mbitmap = BitmapFactory.decodeFile(imgpath);
+                                        userImg.setImageBitmap(mbitmap);
                                     }
 
                                     @Override
@@ -266,6 +274,24 @@ public class PostActivity extends AppCompatActivity  {
                                 }else {
                                     for (int i=0;i<list.size();i++){
                                         Log.i(TAG,"评论内容+"+ list.get(i).getContent());
+                                        final File userimg_comment = new File(getExternalCacheDir(),list.get(i).getAuthor().getPhoto().getFilename());
+                                        if (userimg_comment.exists()){
+                                            //文件存在，不处理
+                                            Log.i(TAG,"文件存在"+userimg_comment.getPath());
+                                            UserImgOfComment++;
+                                        }else {
+                                            list.get(i).getAuthor().getPhoto().download(userimg_comment, new DownloadFileListener() {
+                                                @Override
+                                                public void done(String s, BmobException e) {
+                                                    UserImgOfComment++;
+                                                }
+
+                                                @Override
+                                                public void onProgress(Integer integer, long l) {
+
+                                                }
+                                            });
+                                        }
                                     }
                                     commentCount.setText(""+list.size());
                                     Message msg=Message.obtain();
@@ -274,15 +300,16 @@ public class PostActivity extends AppCompatActivity  {
                                     mHandler.sendMessage(msg);
                                 }
                             }else {
-                                Message msg=Message.obtain();
+                               /* Message msg=Message.obtain();
                                 msg.what=NO;
-                                mHandler.sendMessage(msg);
+                                mHandler.sendMessage(msg);*/
                             }
                         }else {
                             Log.i(TAG, e.getMessage());
-                            Message msg=Message.obtain();
+                            /*Message msg=Message.obtain();
                             msg.what=ERROR;
-                            mHandler.sendMessage(msg);
+                            mHandler.sendMessage(msg);*/
+                            Toast.makeText(PostActivity.this,"请检查网络连接！" ,Toast.LENGTH_SHORT ).show();
                         }
                     }
                 });
@@ -303,6 +330,9 @@ public class PostActivity extends AppCompatActivity  {
             //Log.i(TAG, "commentitems"+mCommentItems.get(1).getContent());
             CommentItem commentItem=mCommentItems.get(mCommentItems.size()-position-1);
             ImageView userImg=view.findViewById(R.id.commentitem_userimg);
+            File comment_img=new File(getExternalCacheDir(),commentItem.getAuthor().getPhoto().getFilename());
+            Bitmap bitmap=BitmapFactory.decodeFile(comment_img.getPath());
+            userImg.setImageBitmap(bitmap);
             TextView nickName=view.findViewById(R.id.commentitem_nickname);
             TextView commentDate=view.findViewById(R.id.commentitem_commentdate);
             TextView commentContent=view.findViewById(R.id.commentitem_content);
