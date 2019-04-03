@@ -4,8 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,16 +40,20 @@ public class CommentFragment extends Fragment {
         return view;
     }
 
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentManager fragmentManager=getFragmentManager();
+                PostActivity postActivity=(PostActivity) getActivity();
+                postActivity.replaceFragment(new ButtonFragment());
+                CommentFragment.this.onDestroy();
+                /*FragmentManager fragmentManager=getFragmentManager();
                 FragmentTransaction transaction=fragmentManager.beginTransaction();
                 transaction.replace(R.id.comment_layout, new ButtonFragment());
-                transaction.commit();
+                transaction.commit();*/
             }
         });
         send_comment.setOnClickListener(new View.OnClickListener() {
@@ -75,10 +77,9 @@ public class CommentFragment extends Fragment {
                                 Toast.makeText(getActivity(),"评论失败！请检查网络连接" , Toast.LENGTH_SHORT).show();
                             }else{
                                 postActivity.refresh();
-                                FragmentManager fragmentManager=getFragmentManager();
-                                FragmentTransaction transaction=fragmentManager.beginTransaction();
-                                transaction.replace(R.id.comment_layout, new ButtonFragment());
-                                transaction.commit();
+                                PostActivity postActivity=(PostActivity) getActivity();
+                                postActivity.replaceFragment(new ButtonFragment());
+                                CommentFragment.this.onDestroy();
                             }
                         }
                     });

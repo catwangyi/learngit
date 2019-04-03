@@ -68,6 +68,7 @@ public class PostActivity extends AppCompatActivity  {
     private String imgpath;
     //private int UserImgOfPost;
     private int UserImgOfComment;
+    private int FileExists;
     private final int ERROR=0;
     private final int USERIMG=3;
     private final int NO=2;
@@ -83,6 +84,7 @@ public class PostActivity extends AppCompatActivity  {
                     mCommentItems= (List<CommentItem>) msg.obj;
                     Log.i(TAG,"mCommentItems.size()"+mCommentItems.size() );
                         UserImgOfComment=0;
+                        FileExists=0;
                         if (adapter==null){
                             adapter=new myAdapter();
                             lv.setAdapter(adapter);
@@ -154,6 +156,7 @@ public class PostActivity extends AppCompatActivity  {
         commentCount=findViewById(R.id.activity_post_commentCount);
         //图片
         postImg=findViewById(R.id.activity_post_postimg);
+        refresh();
         if (postItem.getPhoto()==null){
 
         }else{
@@ -173,7 +176,6 @@ public class PostActivity extends AppCompatActivity  {
                 }
             });
         }
-        refresh();
     }
     public void dianji (View view){
             Toast.makeText(PostActivity.this,"follow！" ,Toast.LENGTH_SHORT ).show();
@@ -187,7 +189,7 @@ public class PostActivity extends AppCompatActivity  {
         replaceFragment(mCommentFragment);
     }
 
-    private void replaceFragment(Fragment fragment){
+    public void replaceFragment(Fragment fragment){
         bundle=new Bundle();
         bundle.putSerializable("User",user);
         fragment.setArguments(bundle);
@@ -195,11 +197,19 @@ public class PostActivity extends AppCompatActivity  {
         FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.comment_layout,fragment);
         if (fragment==mButtonFragment){
+            //fragmentTransaction.addToBackStack(null);
         }else {
-            fragmentTransaction.addToBackStack(null);
+           // fragmentTransaction.addToBackStack(null);
         }
         fragmentTransaction.commit();
     }
+
+    @Override
+    protected void onDestroy() {
+        //replaceFragment(mButtonFragment);
+        super.onDestroy();
+    }
+
     public void refresh(){
         pd.setMessage("加载中，请稍后");
         pd.setCancelable(false);
@@ -261,7 +271,8 @@ public class PostActivity extends AppCompatActivity  {
                 query.include("author");
                 query.findObjects(new FindListener<CommentItem>() {
                     @Override
-                    public void done(List<CommentItem> list, BmobException e) {
+                    public void done(final List<CommentItem> list, BmobException e) {
+                        commentCount.setText(""+list.size());
                         if (e==null){
                             if (!list.isEmpty()){
                                 Log.i(TAG,"Id"+postItem.getObjectId());
@@ -277,39 +288,47 @@ public class PostActivity extends AppCompatActivity  {
                                         if (userimg_comment.exists()){
                                             //文件存在，不处理
                                             Log.i(TAG,"文件存在"+userimg_comment.getPath());
-                                            UserImgOfComment++;
+                                            FileExists++;
                                         }else {
+                                            final int finalI = i;
+                                            Log.i(TAG, "文件名"+list.get(finalI).getAuthor().getPhoto().getFilename());
                                             list.get(i).getAuthor().getPhoto().download(userimg_comment, new DownloadFileListener() {
                                                 @Override
                                                 public void done(String s, BmobException e) {
                                                     UserImgOfComment++;
+                                                    Log.i(TAG,"下载成功！");
+                                                    if (FileExists+UserImgOfComment==list.size()){
+                                                        Message msg=Message.obtain();
+                                                        msg.what=SUCCESS;
+                                                        msg.obj=list;
+                                                        mHandler.sendMessage(msg);
+                                                    }
                                                 }
-
                                                 @Override
                                                 public void onProgress(Integer integer, long l) {
 
                                                 }
                                             });
+
                                         }
-                                    }
-                                    if (UserImgOfComment==list.size()){
-                                        commentCount.setText(""+list.size());
-                                        Message msg=Message.obtain();
-                                        msg.what=SUCCESS;
-                                        msg.obj=list;
-                                        mHandler.sendMessage(msg);
+                                        if (FileExists+UserImgOfComment==list.size()){
+                                            Message msg=Message.obtain();
+                                            msg.what=SUCCESS;
+                                            msg.obj=list;
+                                            mHandler.sendMessage(msg);
+                                        }
                                     }
                                 }
                             }else {
-                               /* Message msg=Message.obtain();
+                                Message msg=Message.obtain();
                                 msg.what=NO;
-                                mHandler.sendMessage(msg);*/
+                                mHandler.sendMessage(msg);
                             }
                         }else {
                             Log.i(TAG, e.getMessage());
-                            /*Message msg=Message.obtain();
+                            Message msg=Message.obtain();
                             msg.what=ERROR;
-                            mHandler.sendMessage(msg);*/
+                            mHandler.sendMessage(msg);
                             Toast.makeText(PostActivity.this,"请检查网络连接！" ,Toast.LENGTH_SHORT ).show();
                         }
                     }

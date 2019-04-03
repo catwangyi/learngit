@@ -31,9 +31,9 @@
                     android:layout_width="match_parent"
                     android:hint="请输入"
                     android:gravity="top"
-                    android:textSize="17dp"
+                    android:textSize="15dp"
                     android:id="@+id/comment_content"
-                    android:lines="10"
+                    android:lines="4"
                     android:layout_height="wrap_content"/>
             </LinearLayout>
 </FrameLayout>

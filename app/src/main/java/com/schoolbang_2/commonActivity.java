@@ -272,7 +272,7 @@ public class commonActivity extends AppCompatActivity {
                                         }else {
                                             //文件不存在
                                             Log.i(TAG,"开始下载"+saveFile.getPath()+"     I:"+i+"filename"+list.get(i).getTitle());
-                                            list.get(i).getPhoto().download(saveFile, new DownloadFileListener() {
+                                            list.get(i).getPhoto().download(saveFile,new DownloadFileListener() {
                                                 @Override
                                                 public void done(String s, BmobException e) {
                                                     Log.i(TAG,"下载成功"+s);
