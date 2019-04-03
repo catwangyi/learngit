@@ -22,9 +22,10 @@ import cn.bmob.v3.listener.SaveListener;
  * @updateDes ${TODO}
  */
 public class RegisteredActivity extends AppCompatActivity {
-    private EditText et_name;
+    private EditText et_username;//
     private EditText et_pwd;
     private EditText et_pwd_confirm;
+    private EditText et_nickname;
     final String TAG="RegisteredActivity";
     private Button registered;
     @Override
@@ -35,23 +36,26 @@ public class RegisteredActivity extends AppCompatActivity {
         if (actionBar!=null){
             actionBar.hide();
         }
-        et_name=findViewById(R.id.et_name_reg);
+        et_username=findViewById(R.id.et_name_reg);
+        et_nickname=findViewById(R.id.et_nickname_reg);
         et_pwd=findViewById(R.id.et_pwd_reg);
         et_pwd_confirm=findViewById(R.id.et_pwd_confirm_reg);
         registered=findViewById(R.id.registered_ac);
         registered.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username=et_name.getText().toString().trim();
+                String username=et_username.getText().toString().trim();
                 String pwd=et_pwd.getText().toString().trim();
+                String nickName=et_nickname.getText().toString().trim();
                 String pwd_confirm=et_pwd_confirm.getText().toString().trim();
-                if (TextUtils.isEmpty(username)||TextUtils.isEmpty(pwd)){
-                    Toast.makeText(RegisteredActivity.this,"账号或密码不能为空！" , Toast.LENGTH_SHORT).show();
+                if (TextUtils.isEmpty(username)||TextUtils.isEmpty(pwd)||TextUtils.isEmpty(nickName)){
+                    Toast.makeText(RegisteredActivity.this,"信息不能为空！" , Toast.LENGTH_SHORT).show();
                 }else{
                 if ((pwd_confirm.equals(pwd))){
                     User user=new User();
                     user.setUsername(username);
                     user.setPassword(pwd);
+                    user.setNickName(nickName);
                     user.signUp(new SaveListener<User>() {
                         @Override
                         public void done(User user, BmobException e) {

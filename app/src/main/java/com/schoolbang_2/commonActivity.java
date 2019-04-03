@@ -93,7 +93,6 @@ public class commonActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //Refresh();
     }
 
     @Override
@@ -255,6 +254,7 @@ public class commonActivity extends AppCompatActivity {
             @Override
             public void run() {
                 final BmobQuery<PostItem> bmobQuery=new BmobQuery<>();
+                bmobQuery.include("author");
                 bmobQuery.findObjects(new FindListener<PostItem>() {
                     @Override
                     public void done(final List<PostItem> list, BmobException e) {

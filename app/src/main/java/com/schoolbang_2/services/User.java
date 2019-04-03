@@ -38,7 +38,6 @@ public class User extends BmobUser {
         this.nickName = nickName;
     }
 
-
     public PostItem getPostItem() {
         return mPostItem;
     }

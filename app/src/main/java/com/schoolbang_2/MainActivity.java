@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void done(Object o, BmobException e) {
                 if(e == null) {
+                    //User user1=(User) o;
+//                    Log.i("主函数","user.nickname"+((User) o).getNickName());
                     Toast.makeText(MainActivity.this,"欢迎"+user.getUsername(), Toast.LENGTH_SHORT).show();
                     Intent intent=new Intent(MainActivity.this,commonActivity.class);
                     intent.putExtra("User", user);

@@ -23,10 +23,14 @@
     <autoscroll-to-editor value="false" />
     <autoscroll-from-editor value="true" />
     <show-object-properties value="true" />
-    <loaded-nodes />
+    <loaded-nodes>
+      <connection connection-id="e2e23ab2-3252-4e18-8b1a-4af09bbf66eb">
+        <schema name="main" object-types="table, view" />
+      </connection>
+    </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
-    <connection id="baa6743b-ef14-45fa-9190-7d3a33096083">
+    <connection id="e2e23ab2-3252-4e18-8b1a-4af09bbf66eb">
       <console name="Connection" type="STANDARD" schema="main" session="Main"><![CDATA[select * from user]]></console>
     </connection>
   </component>
@@ -34,7 +38,7 @@
     <open-files />
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
-    <connection id="baa6743b-ef14-45fa-9190-7d3a33096083" />
+    <connection id="e2e23ab2-3252-4e18-8b1a-4af09bbf66eb" />
   </component>
   <component name="DBNavigator.Project.EditorStateManager">
     <last-used-providers />
@@ -59,7 +63,7 @@
   </component>
   <component name="DBNavigator.Project.Settings">
     <connections>
-      <connection id="baa6743b-ef14-45fa-9190-7d3a33096083" active="true">
+      <connection id="e2e23ab2-3252-4e18-8b1a-4af09bbf66eb" active="true">
         <database>
           <name value="Connection" />
           <description value="" />
@@ -105,7 +109,7 @@
           <session-management value="true" />
           <ddl-file-binding value="true" />
           <database-logging value="false" />
-          <connect-automatically value="false" />
+          <connect-automatically value="true" />
           <restore-workspace value="true" />
           <restore-workspace-deep value="true" />
           <environment-type value="default" />

@@ -9,13 +9,32 @@
         android:layout_height="wrap_content">
         <TextView
             android:layout_width="wrap_content"
+            android:text="昵称："
+            android:textSize="20dp"
+            android:layout_height="wrap_content"/>
+        <EditText
+            android:id="@+id/et_nickname_reg"
+            android:layout_width="match_parent"
+            android:hint="请输入昵称"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#303F9F"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
             android:text="账号："
             android:textSize="20dp"
             android:layout_height="wrap_content"/>
         <EditText
             android:id="@+id/et_name_reg"
             android:layout_width="match_parent"
-            android:hint="请输入用户名"
+            android:hint="请输入账号"
             android:layout_height="wrap_content"/>
     </LinearLayout>
     <ImageView

@@ -58,7 +58,7 @@ public class PostActivity extends AppCompatActivity  {
     private CommentFragment mCommentFragment;
     private ButtonFragment mButtonFragment;
     private TextView postContent;
-    private TextView userName;
+    private TextView nickName;
     private Bundle bundle;
     private PostItem postItem;
     private int mShortAnimationDuration;
@@ -84,8 +84,8 @@ public class PostActivity extends AppCompatActivity  {
                     lv.setAdapter(adapter);
                     break;
                 case ERROR:
-                    Toast.makeText(PostActivity.this,"获取数据失败，请检查网络连接！" ,Toast.LENGTH_SHORT ).show();
-                    finish();
+                    Toast.makeText(PostActivity.this,"获取评论失败，请检查网络连接！" ,Toast.LENGTH_SHORT ).show();
+                    //finish();
                     break;
             }
         }
@@ -153,8 +153,8 @@ public class PostActivity extends AppCompatActivity  {
         postDate=findViewById(R.id.activity_post_date);
         postDate.setText(postItem.getCreatedAt());
         //用户名
-        userName=findViewById(R.id.activity_post_username);
-        userName.setText("用户名");
+        nickName=findViewById(R.id.activity_post_nickname);
+        nickName.setText(postItem.getAuthor().getNickName());
         //内容
         postContent=findViewById(R.id.activity_post_content);
         postContent.setText(postItem.getContent());
@@ -194,25 +194,28 @@ public class PostActivity extends AppCompatActivity  {
                 BmobQuery<CommentItem> query=new BmobQuery<>();
                 query.addWhereEqualTo("post",postItem.getObjectId());
                 query.include("post");
+                query.include("author");
                 query.findObjects(new FindListener<CommentItem>() {
                     @Override
                     public void done(List<CommentItem> list, BmobException e) {
                         if (e==null){
-                            Log.i(TAG,"Id"+postItem.getObjectId());
-                            if (list.isEmpty()){
-                                Log.i(TAG, "empty");
-                            }else {
-                                for (int i=0;i<list.size();i++){
-                                    Log.i(TAG,"评论内容+"+ list.get(i).getContent());
+                            if (!list.isEmpty()){
+                                Log.i(TAG,"Id"+postItem.getObjectId());
+                                if (list.size()==0){
+                                    Log.i(TAG, "empty");
+                                }else {
+                                    for (int i=0;i<list.size();i++){
+                                        Log.i(TAG,"评论内容+"+ list.get(i).getContent());
+                                    }
+                                    commentCount.setText(""+list.size());
+                                    Message msg=Message.obtain();
+                                    msg.what=SUCCESS;
+                                    msg.obj=list;
+                                    mHandler.sendMessage(msg);
                                 }
-                                commentCount.setText(""+list.size());
-                                Message msg=Message.obtain();
-                                msg.what=SUCCESS;
-                                msg.obj=list;
-                                mHandler.sendMessage(msg);
                             }
-                        }else{
-                            Log.i(TAG,"e:"+e.getMessage());
+                        }else {
+                            Log.i(TAG, e.getMessage());
                             Message msg=Message.obtain();
                             msg.what=ERROR;
                             mHandler.sendMessage(msg);
@@ -236,10 +239,10 @@ public class PostActivity extends AppCompatActivity  {
             //Log.i(TAG, "commentitems"+mCommentItems.get(1).getContent());
             CommentItem commentItem=mCommentItems.get(mCommentItems.size()-position-1);
             ImageView userImg=view.findViewById(R.id.commentitem_userimg);
-            TextView userName=view.findViewById(R.id.commentitem_username);
+            TextView nickName=view.findViewById(R.id.commentitem_nickname);
             TextView commentDate=view.findViewById(R.id.commentitem_commentdate);
             TextView commentContent=view.findViewById(R.id.commentitem_content);
-            userName.setText(commentItem.getAuthor().getUsername());
+            nickName.setText(commentItem.getAuthor().getNickName());
             commentDate.setText(commentItem.getCreatedAt());
             commentContent.setText(commentItem.getContent());
             Log.i(TAG, "数据适配成功");
