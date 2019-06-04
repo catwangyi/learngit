@@ -13,11 +13,7 @@ import android.widget.Toast;
 import com.schoolbang_2.db.dao.userDao;
 import com.schoolbang_2.services.User;
 
-import java.util.List;
-
-import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.exception.BmobException;
-import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.SaveListener;
 
 /**
@@ -35,7 +31,7 @@ public class loginActivity extends AppCompatActivity{
     private User user;
     private Button registered;
     private final String TAG="loginActivity";
-    private void check(){
+    /*private void check(){
         User user =new User();
         //此处替换为你的用户名
         user =mDao.find();
@@ -55,7 +51,7 @@ public class loginActivity extends AppCompatActivity{
                 }
             }
         });
-    }
+    }*/
 
     public User getUser() {
         return user;

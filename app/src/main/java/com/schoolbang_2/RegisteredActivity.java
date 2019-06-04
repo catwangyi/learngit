@@ -2,6 +2,7 @@ package com.schoolbang_2;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -54,6 +55,7 @@ public class RegisteredActivity extends AppCompatActivity {
     private EditText et_phone_reg;
     final String TAG="RegisteredActivity";
     private Button registered;
+    private ProgressDialog pd;
     @Override
     protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +86,12 @@ public class RegisteredActivity extends AppCompatActivity {
         registered.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (pd==null){
+                    pd=new ProgressDialog(RegisteredActivity.this);
+                }
+                pd.setMessage("正在加载中...");
+                pd.setCancelable(false);
+                pd.show();
                 String username=et_username.getText().toString().trim();
                 String pwd=et_pwd.getText().toString().trim();
                 String phone=et_phone_reg.getText().toString().trim();
@@ -91,8 +99,13 @@ public class RegisteredActivity extends AppCompatActivity {
                 String pwd_confirm=et_pwd_confirm.getText().toString().trim();
                 if (TextUtils.isEmpty(username)||TextUtils.isEmpty(pwd)||TextUtils.isEmpty(nickName)||TextUtils.isEmpty(phone)){
                     Toast.makeText(RegisteredActivity.this,"信息不能为空！" , Toast.LENGTH_SHORT).show();
+                    pd.dismiss();
                 }else if(TextUtils.isEmpty(imagePath)){
                     Toast.makeText(RegisteredActivity.this,"头像不能为空！" , Toast.LENGTH_SHORT).show();
+                    pd.dismiss();
+                }else if(isMobileNumber(phone)==false){
+                    Toast.makeText(RegisteredActivity.this,"请输入正确的号码！" , Toast.LENGTH_SHORT).show();
+                    pd.dismiss();
                 }
                 else{
                 if ((pwd_confirm.equals(pwd))){
@@ -115,9 +128,15 @@ public class RegisteredActivity extends AppCompatActivity {
                 }
                 else if (!pwd_confirm.equals(pwd)){
                     Toast.makeText(RegisteredActivity.this,"密码不一致！" , Toast.LENGTH_SHORT).show();
+                    pd.dismiss();
                 }}
             }
         });
+    }
+
+    public static boolean isMobileNumber(String mobiles) {
+        String telRegex = "^((13[0-9])|(15[^4])|(18[0-9])|(17[0-8])|(147,145))\\d{8}$";
+        return !TextUtils.isEmpty(mobiles) && mobiles.matches(telRegex);
     }
     private void openAlbum(){
         Intent intent=new Intent("android.intent.action.GET_CONTENT");
@@ -179,6 +198,7 @@ public class RegisteredActivity extends AppCompatActivity {
         }
         displayImage(imagePath);
     }
+
     private void hanleImageBeforeKitKat(Intent data) {
         Uri uri=data.getData();
         String imagePath=getImagePath(uri,null );
@@ -207,6 +227,7 @@ public class RegisteredActivity extends AppCompatActivity {
             Toast.makeText(this,"获取图片失败" ,Toast.LENGTH_SHORT ).show();
         }
     }
+
     private void uploadImage(String imagePath) {
         File file=new File(imagePath);
         Luban.with(this).load(file).ignoreBy(100).setCompressListener(new OnCompressListener() {
@@ -227,6 +248,7 @@ public class RegisteredActivity extends AppCompatActivity {
                            // Toast.makeText(RegisteredActivity.this,"图片上传成功" ,Toast.LENGTH_SHORT ).show();
                         }else {
                            // Toast.makeText(RegisteredActivity.this,"图片上传失败" ,Toast.LENGTH_SHORT ).show();
+                            pd.dismiss();
                         }
                     }
                 });
@@ -240,6 +262,7 @@ public class RegisteredActivity extends AppCompatActivity {
             }
         }).launch();
     }
+
     private void save(BmobFile image) {
         String username=et_username.getText().toString().trim();
         String phone=et_phone_reg.getText().toString().trim();
@@ -256,9 +279,11 @@ public class RegisteredActivity extends AppCompatActivity {
             public void done(User user, BmobException e) {
                 if (e==null){//注册成功
                     Toast.makeText(RegisteredActivity.this, "注册成功！", Toast.LENGTH_SHORT).show();
+                    pd.dismiss();
                     finish();
                 }else{//注册失败
                     Toast.makeText(RegisteredActivity.this, "注册失败！"+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    pd.dismiss();
                 }
             }
         });

@@ -9,6 +9,36 @@
     android:paddingRight="8dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <Button
+            android:layout_width="wrap_content"
+            android:text="订餐区"
+            android:layout_weight="1"
+            android:textColor="#000"
+            android:background="@color/colorPrimary"
+            android:textSize="20dp"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:text="代取快递"
+            android:textColor="#000"
+            android:background="@drawable/edit_background"
+            android:textSize="20dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:text="更多"
+            android:textColor="#000"
+            android:layout_weight="1"
+            android:background="@drawable/edit_background"
+            android:textSize="20dp"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
     <FrameLayout
         android:layout_width="match_parent"
         android:orientation="vertical"
